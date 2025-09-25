@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Clientes - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wine: '#722F37',
+                        'wine-dark': '#5A252A',
+                        gold: '#D4AF37',
+                        'gold-light': '#E6C659'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #000000 0%, #722F37 100%);
+        }
+        .blur-bg {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .loading-spinner {
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #D4AF37;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-button {
+            background: rgba(114, 47, 55, 0.5);
+            color: #E6C659;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #D4AF37, #E6C659);
+            color: #000;
+            border: 2px solid #D4AF37;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .tab-button:hover:not(.active) {
+            background: rgba(114, 47, 55, 0.7);
+            border-color: rgba(212, 175, 55, 0.6);
+            color: #F4E4A6;
+        }
+        .calendar-day {
+            transition: all 0.2s;
+        }
+        .calendar-day:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+        .calendar-day.has-appointment {
+            background: rgba(212, 175, 55, 0.3);
+            border: 1px solid #D4AF37;
+        }
+        .calendar-day.selected {
+            background: #D4AF37;
+            color: #000;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .status-presente {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        .status-faltou {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+        .status-pendente {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, rgba(114, 47, 55, 0.3), rgba(114, 47, 55, 0.1));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Background decorativo -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-40 right-20 w-24 h-24 bg-wine/20 rounded-full blur-lg floating-animation" style="animation-delay: -2s;"></div>
+        <div class="absolute bottom-32 right-1/4 w-40 h-40 bg-wine/5 rounded-full blur-2xl floating-animation" style="animation-delay: -4s;"></div>
+    </div>
+
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <!-- Logo e título -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 mx-auto bg-gradient-to-br from-gold/30 to-gold/10 rounded-2xl border-2 border-gold/40 flex items-center justify-center mb-4 blur-bg shadow-2xl">
+                    <div class="w-8 h-8 bg-gold rounded-lg shadow-lg"></div>
+                </div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent mb-2">Agenda Profissional</h1>
+                <p class="text-gray-300 text-lg">Faça login para acessar sua agenda</p>
+            </div>
+
+            <!-- Formulário de Login -->
+            <div class="bg-black/30 blur-bg rounded-2xl p-8 border border-wine/20 shadow-2xl">
+                <div id="loginForm">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-gold font-medium mb-2">Email</label>
+                            <input type="email" id="email" required
+                                   class="w-full px-4 py-3 bg-wine/20 border border-wine/50 rounded-lg text-white placeholder-gray-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all"
+                                   placeholder="seu@email.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gold font-medium mb-2">Senha</label>
+                            <input type="password" id="password" required
+                                   class="w-full px-4 py-3 bg-wine/20 border border-wine/50 rounded-lg text-white placeholder-gray-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all"
+                                   placeholder="••••••••">
+                        </div>
+
+                        <button id="loginBtn" type="button" 
+                                class="w-full bg-gold hover:bg-gold-light text-black font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                            <span id="loginBtnText">Entrar</span>
+                            <div id="loginSpinner" class="loading-spinner ml-2 hidden"></div>
+                        </button>
+
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-wine/30"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-black/30 text-gray-400">ou</span>
+                            </div>
+                        </div>
+
+                        <button id="googleBtn" type="button"
+                                class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Entrar com Google
+                        </button>
+
+                        <div class="text-center">
+                            <button id="toggleMode" class="text-gold hover:text-gold-light transition-colors text-sm">
+                                Não tem conta? Criar uma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="hidden mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela da Agenda -->
+    <div id="agendaScreen" class="hidden min-h-screen">
+        <div class="container mx-auto px-4 py-6">
+            <!-- Header com espaço para logo -->
+            <header class="mb-8 bg-black/30 blur-bg rounded-2xl p-6 border border-wine/20 shadow-2xl fade-in">
+                <!-- Espaço para logo da loja -->
+                <div class="text-center mb-6 p-4 bg-wine/10 rounded-xl border border-wine/30">
+                    <div class="text-gold text-lg font-semibold">ESPAÇO PARA LOGO DA LOJA</div>
+                    <div class="text-gray-400 text-sm mt-1">Adicione aqui o logo da sua empresa</div>
+                </div>
+                
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gold">Agenda de Clientes</h1>
+                        <p class="text-gray-200 text-sm mt-1" id="userEmail"></p>
+                    </div>
+                    <button id="logoutBtn" class="bg-wine hover:bg-wine-dark text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg">
+                        Sair
+                    </button>
+                </div>
+
+                <!-- Estatísticas do Dia -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gold mb-3">📅 Agendamentos de Hoje - <span id="todayDate"></span></h3>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button id="statsTotalBtn" class="stats-card rounded-xl p-4 text-center hover:scale-105 transition-all cursor-pointer">
+                        <div class="text-2xl font-bold text-gold" id="totalAgendamentos">0</div>
+                        <div class="text-sm text-gray-300">Total Hoje</div>
+                    </button>
+                    <button id="statsPresentesBtn" class="stats-card rounded-xl p-4 text-center hover:scale-105 transition-all cursor-pointer">
+                        <div class="text-2xl font-bold text-green-400" id="totalPresentes">0</div>
+                        <div class="text-sm text-gray-300">Compareceram</div>
+                    </button>
+                    <button id="statsFaltaramBtn" class="stats-card rounded-xl p-4 text-center hover:scale-105 transition-all cursor-pointer">
+                        <div class="text-2xl font-bold text-red-400" id="totalFaltaram">0</div>
+                        <div class="text-sm text-gray-300">Faltaram</div>
+                    </button>
+                    <button id="statsPendentesBtn" class="stats-card rounded-xl p-4 text-center hover:scale-105 transition-all cursor-pointer">
+                        <div class="text-2xl font-bold text-yellow-400" id="totalPendentes">0</div>
+                        <div class="text-sm text-gray-300">Pendentes</div>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Navegação por abas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 bg-black/40 blur-bg rounded-2xl p-3 border-2 border-wine/30 fade-in shadow-xl">
+                <button id="tabAgenda" class="tab-button active px-3 md:px-6 py-3 md:py-4 rounded-xl font-bold transition-all duration-200 text-center text-sm md:text-base">
+                    <span class="block md:hidden">📅</span>
+                    <span class="hidden md:block">📅 Agendamentos</span>
+                    <span class="block md:hidden text-xs mt-1">Agenda</span>
+                </button>
+                <button id="tabClientes" class="tab-button px-3 md:px-6 py-3 md:py-4 rounded-xl font-bold transition-all duration-200 text-center text-sm md:text-base">
+                    <span class="block md:hidden">👥</span>
+                    <span class="hidden md:block">👥 Clientes</span>
+                    <span class="block md:hidden text-xs mt-1">Clientes</span>
+                </button>
+                <button id="tabCalendar" class="tab-button px-3 md:px-6 py-3 md:py-4 rounded-xl font-bold transition-all duration-200 text-center text-sm md:text-base">
+                    <span class="block md:hidden">📅</span>
+                    <span class="hidden md:block">📅 Calendário</span>
+                    <span class="block md:hidden text-xs mt-1">Calendário</span>
+                </button>
+                <button id="tabRelatorios" class="tab-button px-3 md:px-6 py-3 md:py-4 rounded-xl font-bold transition-all duration-200 text-center text-sm md:text-base">
+                    <span class="block md:hidden">📊</span>
+                    <span class="hidden md:block">📊 Relatórios</span>
+                    <span class="block md:hidden text-xs mt-1">Relatórios</span>
+                </button>
+            </div>
+
+            <!-- Conteúdo da aba Agendamentos -->
+            <div id="agendaContent">
+                <!-- Formulário -->
+                <div class="bg-black/40 blur-bg rounded-2xl p-4 md:p-8 mb-8 border-2 border-wine/30 shadow-2xl">
+                    <div class="mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gold">✨ Novo Agendamento</h2>
+                    </div>
+                    <form id="clientForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div class="relative">
+                            <label class="block text-white font-bold mb-2 md:mb-3 text-base md:text-lg">👤 Nome do Cliente</label>
+                            <input type="text" id="clientName" required 
+                                   class="w-full px-4 md:px-5 py-3 md:py-4 bg-wine/40 border-2 border-wine/60 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200 text-base"
+                                   placeholder="Digite ou pesquise o nome do cliente"
+                                   autocomplete="off">
+                            <div id="clientSearchResults" class="absolute top-full left-0 right-0 bg-black/95 border-2 border-wine/60 rounded-xl mt-1 max-h-60 overflow-y-auto z-10 hidden shadow-xl">
+                                <!-- Resultados da pesquisa aparecerão aqui -->
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-2 md:mb-3 text-base md:text-lg">💼 Serviço</label>
+                            <input type="text" id="service" required
+                                   class="w-full px-4 md:px-5 py-3 md:py-4 bg-wine/40 border-2 border-wine/60 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200 text-base"
+                                   placeholder="Tipo de serviço">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-2 md:mb-3 text-base md:text-lg">📅 Data</label>
+                            <div class="relative">
+                                <input type="date" id="date" required
+                                       class="w-full px-4 md:px-5 py-3 md:py-4 bg-wine/40 border-2 border-wine/60 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200 text-base">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-2 md:mb-3 text-base md:text-lg">⏰ Horário</label>
+                            <input type="time" id="time" required
+                                   class="w-full px-4 md:px-5 py-3 md:py-4 bg-wine/40 border-2 border-wine/60 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200 text-base">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-white font-bold mb-2 md:mb-3 text-base md:text-lg">📝 Observações</label>
+                            <textarea id="notes" rows="3" 
+                                      class="w-full px-4 md:px-5 py-3 md:py-4 bg-wine/40 border-2 border-wine/60 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 resize-none transition-all duration-200 text-base"
+                                      placeholder="Observações adicionais..."></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <button type="submit" 
+                                    class="w-full bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-black font-bold py-4 px-6 md:px-8 rounded-xl transition-all duration-200 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                                ✨ Agendar Cliente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de agendamentos -->
+                <div class="bg-black/40 blur-bg rounded-2xl p-4 md:p-8 border-2 border-wine/30 shadow-2xl fade-in">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gold">📋 Seus Agendamentos</h2>
+                        <div class="grid grid-cols-2 md:flex gap-2">
+                            <button id="filterAll" class="px-3 py-2 bg-gold text-black rounded-lg font-bold text-xs md:text-sm transition-all shadow-md">
+                                Todos
+                            </button>
+                            <button id="filterPendente" class="px-3 py-2 bg-wine/40 text-white rounded-lg font-bold text-xs md:text-sm transition-all border border-wine/50">
+                                Pendentes
+                            </button>
+                            <button id="filterPresente" class="px-3 py-2 bg-wine/40 text-white rounded-lg font-bold text-xs md:text-sm transition-all border border-wine/50">
+                                Presentes
+                            </button>
+                            <button id="filterFaltou" class="px-3 py-2 bg-wine/40 text-white rounded-lg font-bold text-xs md:text-sm transition-all border border-wine/50">
+                                Faltaram
+                            </button>
+                        </div>
+                    </div>
+                    <div id="appointmentsList" class="space-y-4">
+                        <!-- Agendamentos aparecerão aqui -->
+                    </div>
+                    <div id="emptyState" class="text-center py-12">
+                        <p class="text-xl font-semibold mb-2 text-white">Nenhum agendamento ainda</p>
+                        <p class="text-lg text-gray-300">Adicione seu primeiro cliente acima</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo da aba Clientes -->
+            <div id="clientesContent" class="hidden">
+                <!-- Formulário de Cliente -->
+                <div class="bg-black/40 blur-bg rounded-2xl p-8 mb-8 border border-wine/30 shadow-2xl">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-gold">👥 Cadastro de Clientes</h2>
+                    </div>
+                    <form id="clienteForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Nome Completo *</label>
+                            <input type="text" id="clienteNome" required 
+                                   class="w-full px-5 py-4 bg-wine/30 border-2 border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+                                   placeholder="Nome completo do cliente">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Data de Nascimento *</label>
+                            <input type="date" id="clienteNascimento" required
+                                   class="w-full px-5 py-4 bg-wine/30 border-2 border-wine/50 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Sexo *</label>
+                            <select id="clienteSexo" required
+                                    class="w-full px-5 py-4 bg-wine/30 border-2 border-wine/50 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200">
+                                <option value="">Selecione</option>
+                                <option value="feminino">Feminino</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Telefone *</label>
+                            <input type="tel" id="clienteTelefone" required
+                                   class="w-full px-5 py-4 bg-wine/30 border-2 border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+                                   placeholder="(11) 99999-9999">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Email</label>
+                            <input type="email" id="clienteEmail"
+                                   class="w-full px-5 py-4 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+                                   placeholder="cliente@email.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-lg">Profissão</label>
+                            <input type="text" id="clienteProfissao"
+                                   class="w-full px-5 py-4 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+                                   placeholder="Profissão do cliente">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-white font-bold mb-3 text-lg">Observações</label>
+                            <textarea id="clienteObservacoes" rows="4"
+                                      class="w-full px-5 py-4 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 resize-none transition-all duration-200"
+                                      placeholder="Observações sobre o cliente, preferências, alergias, etc..."></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <button type="submit" 
+                                    class="w-full bg-gold hover:bg-gold-light text-black font-bold py-4 px-8 rounded-xl transition-all duration-200 text-lg">
+                                💾 Cadastrar Cliente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Clientes -->
+                <div class="bg-black/40 blur-bg rounded-2xl p-8 border border-wine/30 shadow-2xl fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-gold">Lista de Clientes</h2>
+                        <div class="flex gap-4">
+                            <input type="text" id="searchClientes" 
+                                   class="px-4 py-2 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none"
+                                   placeholder="Pesquisar cliente...">
+                        </div>
+                    </div>
+                    <div id="clientesList" class="space-y-4">
+                        <!-- Clientes aparecerão aqui -->
+                    </div>
+                    <div id="clientesEmptyState" class="text-center py-12">
+                        <p class="text-xl font-semibold mb-2 text-white">Nenhum cliente cadastrado</p>
+                        <p class="text-lg text-gray-300">Cadastre seu primeiro cliente acima</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo da aba Calendário -->
+            <div id="calendarContent" class="hidden">
+                <div class="bg-black/40 blur-bg rounded-2xl p-8 border border-wine/30 shadow-2xl fade-in">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gold">Calendário</h2>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button id="prevMonth" class="bg-wine hover:bg-wine-dark text-white px-4 py-3 rounded-xl transition-all duration-200 font-semibold">
+                                ←
+                            </button>
+                            <span id="currentMonth" class="text-white font-bold text-xl min-w-[200px] text-center"></span>
+                            <button id="nextMonth" class="bg-wine hover:bg-wine-dark text-white px-4 py-3 rounded-xl transition-all duration-200 font-semibold">
+                                →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="calendar" class="grid grid-cols-7 gap-3 mb-8">
+                        <!-- Calendário será gerado aqui -->
+                    </div>
+                    
+                    <div id="selectedDateInfo" class="p-6 bg-gradient-to-r from-wine/20 to-wine/30 rounded-2xl border border-wine/40 hidden shadow-lg">
+                        <h3 class="text-gold font-bold text-xl mb-4">📅 Agendamentos do dia:</h3>
+                        <div id="dayAppointments"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo da aba Relatórios -->
+            <div id="relatoriosContent" class="hidden">
+                <div class="space-y-8">
+                    <!-- Relatório Mensal -->
+                    <div class="bg-black/40 blur-bg rounded-2xl p-8 border border-wine/30 shadow-2xl fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-3xl font-bold text-gold">Relatório Mensal</h2>
+                            <select id="monthSelect" class="bg-wine/30 border border-wine/50 rounded-xl text-white px-4 py-2 focus:border-gold focus:outline-none">
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="stats-card rounded-xl p-6 text-center">
+                                <div class="text-3xl font-bold text-gold mb-2" id="monthlyTotal">0</div>
+                                <div class="text-gray-300">Total do Mês</div>
+                            </div>
+                            <div class="stats-card rounded-xl p-6 text-center">
+                                <div class="text-3xl font-bold text-green-400 mb-2" id="monthlyPresentes">0</div>
+                                <div class="text-gray-300">Compareceram</div>
+                            </div>
+                            <div class="stats-card rounded-xl p-6 text-center">
+                                <div class="text-3xl font-bold text-red-400 mb-2" id="monthlyFaltaram">0</div>
+                                <div class="text-gray-300">Faltaram</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Lista de quem compareceu -->
+                            <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-6">
+                                <h3 class="text-green-400 font-bold text-xl mb-4">✅ Compareceram</h3>
+                                <div id="listaPresentes" class="space-y-2 max-h-60 overflow-y-auto">
+                                    <!-- Lista será preenchida via JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Lista de quem faltou -->
+                            <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                                <h3 class="text-red-400 font-bold text-xl mb-4">❌ Faltaram</h3>
+                                <div id="listaFaltaram" class="space-y-2 max-h-60 overflow-y-auto">
+                                    <!-- Lista será preenchida via JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Frequência -->
+                    <div class="bg-black/40 blur-bg rounded-2xl p-8 border border-wine/30 shadow-2xl fade-in">
+                        <h2 class="text-3xl font-bold text-gold mb-6">Frequência de Clientes</h2>
+                        <div id="frequenciaClientes" class="space-y-4">
+                            <!-- Gráfico será gerado aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-black/90 border border-wine/30 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gold">✏️ Editar Agendamento</h2>
+                <button id="closeEditModal" class="text-gray-400 hover:text-white text-2xl">×</button>
+            </div>
+            
+            <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-white font-bold mb-3">Nome do Cliente</label>
+                    <input type="text" id="editClientName" required 
+                           class="w-full px-4 py-3 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all">
+                </div>
+                
+                <div>
+                    <label class="block text-white font-bold mb-3">Serviço</label>
+                    <input type="text" id="editService" required
+                           class="w-full px-4 py-3 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all">
+                </div>
+                
+                <div>
+                    <label class="block text-white font-bold mb-3">Data</label>
+                    <input type="date" id="editDate" required
+                           class="w-full px-4 py-3 bg-wine/30 border border-wine/50 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all">
+                </div>
+                
+                <div>
+                    <label class="block text-white font-bold mb-3">Horário</label>
+                    <input type="time" id="editTime" required
+                           class="w-full px-4 py-3 bg-wine/30 border border-wine/50 rounded-xl text-white focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-white font-bold mb-3">Observações</label>
+                    <textarea id="editNotes" rows="3"
+                              class="w-full px-4 py-3 bg-wine/30 border border-wine/50 rounded-xl text-white placeholder-gray-300 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 resize-none transition-all"></textarea>
+                </div>
+                
+                <div class="md:col-span-2 flex gap-4">
+                    <button type="submit" class="flex-1 bg-gold hover:bg-gold-light text-black font-bold py-3 px-6 rounded-xl transition-all">
+                        💾 Salvar Alterações
+                    </button>
+                    <button type="button" id="cancelEdit" class="flex-1 bg-wine hover:bg-wine-dark text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes das Estatísticas -->
+    <div id="statsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-black/90 border border-wine/30 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="statsModalTitle" class="text-2xl font-bold text-gold"></h2>
+                <button id="closeStatsModal" class="text-gray-400 hover:text-white text-2xl">×</button>
+            </div>
+            
+            <div id="statsModalContent" class="space-y-4">
+                <!-- Conteúdo será preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação de Lembrete -->
+    <div id="reminderNotification" class="fixed top-4 right-4 bg-gradient-to-r from-gold to-gold-light text-black p-6 rounded-2xl shadow-2xl border-2 border-gold hidden z-50 max-w-sm">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="text-2xl">⏰</div>
+            <div class="font-bold text-lg">Lembrete!</div>
+        </div>
+        <div id="reminderContent" class="text-sm font-medium"></div>
+        <button id="closeReminder" class="absolute top-2 right-2 text-black/60 hover:text-black text-xl">×</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, where } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUF8USZ4eHJPqM6SBiHDGhOmvYpZmVSnk",
+            authDomain: "agenda-lashes-f3766.firebaseapp.com",
+            projectId: "agenda-lashes-f3766",
+            storageBucket: "agenda-lashes-f3766.firebasestorage.app",
+            messagingSenderId: "321642421475",
+            appId: "1:321642421475:web:cea7c933f29ff5bea1b9d6",
+            measurementId: "G-62GWTEQG3W"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let isLoginMode = true;
+        let unsubscribeAppointments = null;
+        let currentDate = new Date();
+        let appointments = [];
+        let clientes = [];
+        let activeTab = 'agenda';
+        let currentFilter = 'all';
+        let reminderInterval = null;
+        let editingAppointment = null;
+
+        // Elementos DOM
+        const loginScreen = document.getElementById('loginScreen');
+        const agendaScreen = document.getElementById('agendaScreen');
+        const loginBtn = document.getElementById('loginBtn');
+        const googleBtn = document.getElementById('googleBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const toggleMode = document.getElementById('toggleMode');
+        const errorMessage = document.getElementById('errorMessage');
+        const clientForm = document.getElementById('clientForm');
+        const appointmentsList = document.getElementById('appointmentsList');
+        const emptyState = document.getElementById('emptyState');
+        const tabAgenda = document.getElementById('tabAgenda');
+        const tabClientes = document.getElementById('tabClientes');
+        const tabCalendar = document.getElementById('tabCalendar');
+        const tabRelatorios = document.getElementById('tabRelatorios');
+        const agendaContent = document.getElementById('agendaContent');
+        const clientesContent = document.getElementById('clientesContent');
+        const calendarContent = document.getElementById('calendarContent');
+        const relatoriosContent = document.getElementById('relatoriosContent');
+        const calendar = document.getElementById('calendar');
+        const currentMonth = document.getElementById('currentMonth');
+        const prevMonth = document.getElementById('prevMonth');
+        const nextMonth = document.getElementById('nextMonth');
+
+        // Funções de utilidade
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        function setLoading(isLoading) {
+            const spinner = document.getElementById('loginSpinner');
+            const btnText = document.getElementById('loginBtnText');
+            
+            if (isLoading) {
+                spinner.classList.remove('hidden');
+                btnText.textContent = 'Entrando...';
+                loginBtn.disabled = true;
+                googleBtn.disabled = true;
+            } else {
+                spinner.classList.add('hidden');
+                btnText.textContent = isLoginMode ? 'Entrar' : 'Criar Conta';
+                loginBtn.disabled = false;
+                googleBtn.disabled = false;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            // Atualizar botões das abas
+            tabAgenda.classList.toggle('active', tab === 'agenda');
+            tabClientes.classList.toggle('active', tab === 'clientes');
+            tabCalendar.classList.toggle('active', tab === 'calendar');
+            tabRelatorios.classList.toggle('active', tab === 'relatorios');
+            
+            // Mostrar/esconder conteúdo
+            agendaContent.classList.toggle('hidden', tab !== 'agenda');
+            clientesContent.classList.toggle('hidden', tab !== 'clientes');
+            calendarContent.classList.toggle('hidden', tab !== 'calendar');
+            relatoriosContent.classList.toggle('hidden', tab !== 'relatorios');
+            
+            if (tab === 'calendar') {
+                generateCalendar();
+            } else if (tab === 'relatorios') {
+                generateReports();
+            } else if (tab === 'clientes') {
+                loadClientes();
+            }
+        }
+
+        function generateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Atualizar título do mês
+            currentMonth.textContent = new Date(year, month).toLocaleDateString('pt-BR', { 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            
+            // Limpar calendário
+            calendar.innerHTML = '';
+            
+            // Cabeçalho dos dias da semana
+            const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            daysOfWeek.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'text-center text-gold font-bold py-4 text-lg bg-wine/20 rounded-xl border border-wine/30';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Primeiro dia do mês e último dia
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            // Gerar dias do calendário
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day text-center py-4 px-3 rounded-xl cursor-pointer border border-transparent font-semibold text-lg transition-all duration-200 hover:scale-105';
+                
+                const isCurrentMonth = date.getMonth() === month;
+                const dateString = date.toISOString().split('T')[0];
+                const hasAppointment = appointments.some(apt => apt.date === dateString);
+                
+                if (!isCurrentMonth) {
+                    dayElement.className += ' text-gray-500 bg-black/10';
+                } else {
+                    dayElement.className += ' text-white bg-wine/10 border-wine/20';
+                }
+                
+                if (hasAppointment) {
+                    dayElement.className += ' has-appointment bg-gradient-to-br from-gold/30 to-gold/20 border-gold/50 text-black font-bold shadow-lg';
+                }
+                
+                dayElement.textContent = date.getDate();
+                dayElement.addEventListener('click', () => selectDate(dateString));
+                
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function selectDate(dateString) {
+            // Remover seleção anterior
+            document.querySelectorAll('.calendar-day.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Adicionar seleção atual
+            event.target.classList.add('selected');
+            
+            // Mostrar agendamentos do dia
+            const dayAppointments = appointments.filter(apt => apt.date === dateString);
+            const selectedDateInfo = document.getElementById('selectedDateInfo');
+            const dayAppointmentsDiv = document.getElementById('dayAppointments');
+            
+            if (dayAppointments.length > 0) {
+                selectedDateInfo.classList.remove('hidden');
+                dayAppointmentsDiv.innerHTML = dayAppointments.map(apt => {
+                    const statusClass = apt.status === 'presente' ? 'bg-green-500/20 border-green-500/30' : 
+                                       apt.status === 'faltou' ? 'bg-red-500/20 border-red-500/30' : 
+                                       'bg-yellow-500/20 border-yellow-500/30';
+                    const statusText = apt.status === 'presente' ? '✅ Compareceu' : 
+                                      apt.status === 'faltou' ? '❌ Faltou' : '⏳ Pendente';
+                    
+                    return `
+                        <div class="${statusClass} rounded-xl p-4 mb-3 border shadow-lg">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="text-gold font-bold text-lg mb-2">${apt.name}</h4>
+                                    <div class="flex items-center gap-4 text-gray-300 mb-2">
+                                        <span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm font-semibold">${apt.service}</span>
+                                        <span class="font-medium">${apt.time}</span>
+                                    </div>
+                                    ${apt.notes ? `<p class="text-gray-400 text-sm mt-2 bg-black/20 p-2 rounded-lg"><strong>Obs:</strong> ${apt.notes}</p>` : ''}
+                                </div>
+                                <span class="text-sm font-semibold">${statusText}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                selectedDateInfo.classList.remove('hidden');
+                dayAppointmentsDiv.innerHTML = '<div class="text-center py-6"><div class="w-12 h-12 mx-auto mb-3 bg-wine/20 rounded-xl border border-wine/30 flex items-center justify-center"><div class="w-4 h-4 border-2 border-gray-400 rounded"></div></div><p class="text-gray-400 text-lg">Nenhum agendamento neste dia</p></div>';
+            }
+        }
+
+        function updateCalendarView(appointmentsData) {
+            appointments = appointmentsData;
+            if (activeTab === 'calendar') {
+                generateCalendar();
+            }
+        }
+
+        // Autenticação
+        async function handleEmailAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('Por favor, preencha todos os campos');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                let message = 'Erro ao fazer login';
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Usuário não encontrado';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Senha incorreta';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    message = 'Este email já está em uso';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'A senha deve ter pelo menos 6 caracteres';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Email inválido';
+                }
+                showError(message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function handleGoogleAuth() {
+            setLoading(true);
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                showError('Erro ao fazer login com Google');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const btnText = document.getElementById('loginBtnText');
+            btnText.textContent = isLoginMode ? 'Entrar' : 'Criar Conta';
+            toggleMode.textContent = isLoginMode ? 'Não tem conta? Criar uma' : 'Já tem conta? Fazer login';
+        }
+
+        // Gerenciamento de clientes
+        function loadClientes() {
+            if (!currentUser) return;
+
+            try {
+                const storageKey = `clientes_${currentUser.uid}`;
+                const savedClientes = localStorage.getItem(storageKey);
+                clientes = savedClientes ? JSON.parse(savedClientes) : [];
+                
+                renderClientes(clientes);
+            } catch (error) {
+                console.error("Erro ao carregar clientes:", error);
+                showError('Erro ao carregar clientes');
+            }
+        }
+
+        function renderClientes(clientesList) {
+            const clientesListDiv = document.getElementById('clientesList');
+            const emptyState = document.getElementById('clientesEmptyState');
+
+            if (clientesList.length === 0) {
+                clientesListDiv.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            // Ordenar por ordem alfabética
+            const sortedClientes = [...clientesList].sort((a, b) => a.nome.localeCompare(b.nome));
+            
+            clientesListDiv.innerHTML = sortedClientes.map(cliente => {
+                const idade = cliente.nascimento ? 
+                    Math.floor((new Date() - new Date(cliente.nascimento)) / (365.25 * 24 * 60 * 60 * 1000)) : 
+                    'N/A';
+                
+                return `
+                    <div class="bg-wine/20 border-2 border-wine/40 rounded-2xl hover:bg-wine/30 transition-all duration-200 slide-in cursor-pointer" onclick="toggleClienteDetails('${cliente.id}')">
+                        <!-- Vista Compacta -->
+                        <div class="p-6">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <h3 class="text-2xl font-bold text-gold">${cliente.nome}</h3>
+                                    <span class="bg-wine/40 text-white px-3 py-1 rounded-full text-sm font-semibold border border-wine/50">${idade} anos</span>
+                                    <span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm font-semibold border border-gold/40">${cliente.sexo || 'N/A'}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gold text-sm font-medium">Clique para ver detalhes</span>
+                                    <span class="text-gold text-xl" id="arrow-${cliente.id}">▼</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalhes Completos (Inicialmente Ocultos) -->
+                        <div id="details-${cliente.id}" class="hidden border-t-2 border-wine/40 bg-wine/10 p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-white mb-4">
+                                <div><span class="text-gold font-semibold">📞 Telefone:</span> ${cliente.telefone}</div>
+                                ${cliente.email ? `<div><span class="text-gold font-semibold">📧 Email:</span> ${cliente.email}</div>` : '<div><span class="text-gold font-semibold">📧 Email:</span> Não informado</div>'}
+                                ${cliente.profissao ? `<div><span class="text-gold font-semibold">💼 Profissão:</span> ${cliente.profissao}</div>` : '<div><span class="text-gold font-semibold">💼 Profissão:</span> Não informada</div>'}
+                                <div><span class="text-gold font-semibold">🎂 Nascimento:</span> ${formatDate(cliente.nascimento)}</div>
+                            </div>
+                            
+                            ${cliente.observacoes ? `
+                                <div class="bg-black/30 rounded-xl p-4 mb-4 border border-wine/20">
+                                    <p class="text-white"><span class="text-gold font-semibold">📝 Observações:</span> ${cliente.observacoes}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex gap-3 pt-4 border-t border-wine/30">
+                                <button onclick="event.stopPropagation(); editCliente('${cliente.id}')" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all duration-200 font-semibold shadow-lg">
+                                    ✏️ Editar Cliente
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteCliente('${cliente.id}')" 
+                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition-all duration-200 font-semibold shadow-lg">
+                                    🗑️ Excluir Cliente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addCliente(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                showError('Usuário não autenticado');
+                return;
+            }
+
+            const nome = document.getElementById('clienteNome').value.trim();
+            const nascimento = document.getElementById('clienteNascimento').value;
+            const sexo = document.getElementById('clienteSexo').value;
+            const telefone = document.getElementById('clienteTelefone').value.trim();
+            const email = document.getElementById('clienteEmail').value.trim();
+            const profissao = document.getElementById('clienteProfissao').value.trim();
+            const observacoes = document.getElementById('clienteObservacoes').value.trim();
+
+            if (!nome || !nascimento || !sexo || !telefone) {
+                showError('Por favor, preencha todos os campos obrigatórios (*)');
+                return;
+            }
+
+            try {
+                const storageKey = `clientes_${currentUser.uid}`;
+                const savedClientes = localStorage.getItem(storageKey);
+                const clientes = savedClientes ? JSON.parse(savedClientes) : [];
+                
+                const newCliente = {
+                    id: Date.now().toString(),
+                    userId: currentUser.uid,
+                    nome,
+                    nascimento,
+                    sexo,
+                    telefone,
+                    email,
+                    profissao,
+                    observacoes,
+                    createdAt: new Date().toISOString()
+                };
+
+                clientes.push(newCliente);
+                clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+
+                localStorage.setItem(storageKey, JSON.stringify(clientes));
+                
+                document.getElementById('clienteForm').reset();
+                loadClientes();
+                
+            } catch (error) {
+                console.error('Erro ao adicionar cliente:', error);
+                showError('Erro ao adicionar cliente: ' + error.message);
+            }
+        }
+
+        // Função para expandir/recolher detalhes do cliente
+        window.toggleClienteDetails = function(clienteId) {
+            const detailsDiv = document.getElementById(`details-${clienteId}`);
+            const arrow = document.getElementById(`arrow-${clienteId}`);
+            
+            if (detailsDiv.classList.contains('hidden')) {
+                detailsDiv.classList.remove('hidden');
+                arrow.textContent = '▲';
+            } else {
+                detailsDiv.classList.add('hidden');
+                arrow.textContent = '▼';
+            }
+        };
+
+        function searchClientes(searchTerm) {
+            if (!searchTerm.trim()) {
+                document.getElementById('clientSearchResults').classList.add('hidden');
+                return;
+            }
+
+            const filteredClientes = clientes.filter(cliente => 
+                cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (cliente.telefone && cliente.telefone.includes(searchTerm)) ||
+                (cliente.email && cliente.email.toLowerCase().includes(searchTerm))
+            );
+
+            const resultsDiv = document.getElementById('clientSearchResults');
+            
+            if (filteredClientes.length > 0) {
+                resultsDiv.innerHTML = filteredClientes.map(cliente => `
+                    <div class="p-4 hover:bg-wine/30 cursor-pointer border-b border-wine/20 last:border-b-0 client-result transition-all" 
+                         data-client-id="${cliente.id}">
+                        <div class="font-bold text-gold text-lg">${cliente.nome}</div>
+                    </div>
+                `).join('');
+                resultsDiv.classList.remove('hidden');
+                
+                // Adicionar event listeners para cada resultado
+                resultsDiv.querySelectorAll('.client-result').forEach(element => {
+                    element.addEventListener('click', () => {
+                        const clientId = element.getAttribute('data-client-id');
+                        selectCliente(clientId);
+                    });
+                });
+            } else {
+                resultsDiv.innerHTML = '<div class="p-3 text-gray-400 text-center">Nenhum cliente encontrado</div>';
+                resultsDiv.classList.remove('hidden');
+            }
+        }
+
+        function selectCliente(clientId) {
+            const cliente = clientes.find(c => c.id === clientId);
+            if (cliente) {
+                document.getElementById('clientName').value = cliente.nome;
+                document.getElementById('clientSearchResults').classList.add('hidden');
+                
+                // Opcional: preencher outros campos se necessário
+                // Por exemplo, se você quiser preencher observações automaticamente:
+                // if (cliente.observacoes) {
+                //     document.getElementById('notes').value = cliente.observacoes;
+                // }
+            }
+        }
+
+        window.editCliente = function(id) {
+            // Implementar edição de cliente
+            console.log('Editar cliente:', id);
+        };
+
+        window.deleteCliente = function(id) {
+            if (!currentUser) return;
+            
+            try {
+                const storageKey = `clientes_${currentUser.uid}`;
+                const savedClientes = localStorage.getItem(storageKey);
+                const clientes = savedClientes ? JSON.parse(savedClientes) : [];
+                
+                const filteredClientes = clientes.filter(cliente => cliente.id !== id);
+                localStorage.setItem(storageKey, JSON.stringify(filteredClientes));
+                
+                loadClientes();
+                
+            } catch (error) {
+                console.error('Erro ao excluir cliente:', error);
+                showError('Erro ao excluir cliente');
+            }
+        };
+
+        // Gerenciamento de agendamentos (usando localStorage temporariamente)
+        function loadAppointments() {
+            if (!currentUser) return;
+
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                appointments = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                console.log('Agendamentos carregados:', appointments);
+                renderAppointments(appointments);
+                updateCalendarView(appointments);
+                updateStats();
+            } catch (error) {
+                console.error("Erro ao carregar agendamentos:", error);
+                showError('Erro ao carregar agendamentos');
+            }
+        }
+
+        function renderAppointments(appointments) {
+            // Filtrar agendamentos baseado no filtro atual
+            let filteredAppointments = appointments;
+            if (currentFilter !== 'all') {
+                filteredAppointments = appointments.filter(apt => apt.status === currentFilter);
+            }
+
+            if (filteredAppointments.length === 0) {
+                appointmentsList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            appointmentsList.innerHTML = filteredAppointments.map(apt => {
+                const status = apt.status || 'pendente';
+                const statusClass = status === 'presente' ? 'status-presente' : 
+                                  status === 'faltou' ? 'status-faltou' : 'status-pendente';
+                const statusText = status === 'presente' ? '✅ Compareceu' : 
+                                 status === 'faltou' ? '❌ Faltou' : '⏳ Pendente';
+                
+                return `
+                    <div class="bg-wine/20 border border-wine/40 rounded-2xl p-6 hover:bg-wine/30 transition-all duration-200 slide-in">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <h3 class="text-2xl font-bold text-gold">${apt.name}</h3>
+                                    <span class="bg-gold/20 text-gold px-4 py-2 rounded-full text-sm font-semibold border border-gold/30">
+                                        ${apt.service}
+                                    </span>
+                                    <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-8 text-white mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-medium">Data: ${formatDate(apt.date)}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-medium">Horário: ${apt.time}</span>
+                                    </div>
+                                </div>
+                                ${apt.notes ? `
+                                    <div class="bg-black/30 rounded-xl p-4 mt-4 border border-wine/20">
+                                        <p class="text-white"><span class="text-gold font-semibold">Observações:</span> ${apt.notes}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                <!-- Botões de Status -->
+                                <div class="flex gap-2 mt-4">
+                                    <button onclick="updateStatus('${apt.id}', 'presente')" 
+                                            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-all ${status === 'presente' ? 'ring-2 ring-green-400' : ''}">
+                                        ✅ Presente
+                                    </button>
+                                    <button onclick="updateStatus('${apt.id}', 'faltou')" 
+                                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-all ${status === 'faltou' ? 'ring-2 ring-red-400' : ''}">
+                                        ❌ Faltou
+                                    </button>
+                                    <button onclick="updateStatus('${apt.id}', 'pendente')" 
+                                            class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-semibold transition-all ${status === 'pendente' ? 'ring-2 ring-yellow-400' : ''}">
+                                        ⏳ Pendente
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ml-6 flex flex-col gap-2">
+                                <button onclick="editAppointment('${apt.id}')" 
+                                        class="text-blue-400 hover:text-blue-300 transition-all duration-200 p-3 hover:bg-blue-500/20 rounded-xl">
+                                    ✏️ Editar
+                                </button>
+                                <button onclick="deleteAppointment('${apt.id}')" 
+                                        class="text-red-400 hover:text-red-300 transition-all duration-200 p-3 hover:bg-red-500/20 rounded-xl">
+                                    🗑️ Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+
+        function addAppointment(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                showError('Usuário não autenticado');
+                return;
+            }
+
+            const name = document.getElementById('clientName').value.trim();
+            const service = document.getElementById('service').value.trim();
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!name || !service || !date || !time) {
+                showError('Por favor, preencha todos os campos obrigatórios');
+                return;
+            }
+
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                let appointmentsList = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                const newAppointment = {
+                    id: Date.now().toString(),
+                    userId: currentUser.uid,
+                    name,
+                    service,
+                    date,
+                    time,
+                    notes,
+                    status: 'pendente',
+                    createdAt: new Date().toISOString()
+                };
+
+                appointmentsList.push(newAppointment);
+                appointmentsList.sort((a, b) => {
+                    if (a.date !== b.date) return a.date.localeCompare(b.date);
+                    return a.time.localeCompare(b.time);
+                });
+
+                localStorage.setItem(storageKey, JSON.stringify(appointmentsList));
+                
+                // Atualizar variável global
+                appointments = appointmentsList;
+                
+                console.log('Agendamento criado:', newAppointment);
+                clientForm.reset();
+                
+                // Definir data atual como padrão
+                const today = new Date();
+                document.getElementById('date').value = today.toISOString().split('T')[0];
+                
+                // Recarregar lista e atualizar estatísticas
+                renderAppointments(appointments);
+                updateCalendarView(appointments);
+                updateStats();
+                
+            } catch (error) {
+                console.error('Erro ao adicionar agendamento:', error);
+                showError('Erro ao adicionar agendamento: ' + error.message);
+            }
+        }
+
+        // Função para atualizar status do agendamento
+        window.updateStatus = function(id, newStatus) {
+            if (!currentUser) return;
+            
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                let appointmentsList = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                const appointmentIndex = appointmentsList.findIndex(apt => apt.id === id);
+                if (appointmentIndex !== -1) {
+                    appointmentsList[appointmentIndex].status = newStatus;
+                    localStorage.setItem(storageKey, JSON.stringify(appointmentsList));
+                    
+                    // Atualizar variável global
+                    appointments = appointmentsList;
+                    
+                    // Atualizar interface
+                    renderAppointments(appointments);
+                    updateCalendarView(appointments);
+                    updateStats();
+                }
+                
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                showError('Erro ao atualizar status');
+            }
+        };
+
+        // Função para atualizar estatísticas (apenas do dia atual)
+        function updateStats() {
+            if (!appointments || appointments.length === 0) {
+                document.getElementById('totalAgendamentos').textContent = '0';
+                document.getElementById('totalPresentes').textContent = '0';
+                document.getElementById('totalFaltaram').textContent = '0';
+                document.getElementById('totalPendentes').textContent = '0';
+                
+                // Atualizar data de hoje
+                const todayFormatted = new Date().toLocaleDateString('pt-BR', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                document.getElementById('todayDate').textContent = todayFormatted;
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppointments = appointments.filter(apt => apt.date === today);
+            
+            const total = todayAppointments.length;
+            const presentes = todayAppointments.filter(apt => apt.status === 'presente').length;
+            const faltaram = todayAppointments.filter(apt => apt.status === 'faltou').length;
+            const pendentes = todayAppointments.filter(apt => apt.status === 'pendente').length;
+
+            document.getElementById('totalAgendamentos').textContent = total;
+            document.getElementById('totalPresentes').textContent = presentes;
+            document.getElementById('totalFaltaram').textContent = faltaram;
+            document.getElementById('totalPendentes').textContent = pendentes;
+            
+            // Atualizar data de hoje
+            const todayFormatted = new Date().toLocaleDateString('pt-BR', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('todayDate').textContent = todayFormatted;
+        }
+
+        // Função para filtrar agendamentos
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Atualizar botões de filtro
+            document.getElementById('filterAll').className = filter === 'all' ? 
+                'px-4 py-2 bg-gold text-black rounded-lg font-semibold text-sm transition-all' :
+                'px-4 py-2 bg-wine/30 text-white rounded-lg font-semibold text-sm transition-all';
+            document.getElementById('filterPendente').className = filter === 'pendente' ? 
+                'px-4 py-2 bg-gold text-black rounded-lg font-semibold text-sm transition-all' :
+                'px-4 py-2 bg-wine/30 text-white rounded-lg font-semibold text-sm transition-all';
+            document.getElementById('filterPresente').className = filter === 'presente' ? 
+                'px-4 py-2 bg-gold text-black rounded-lg font-semibold text-sm transition-all' :
+                'px-4 py-2 bg-wine/30 text-white rounded-lg font-semibold text-sm transition-all';
+            document.getElementById('filterFaltou').className = filter === 'faltou' ? 
+                'px-4 py-2 bg-gold text-black rounded-lg font-semibold text-sm transition-all' :
+                'px-4 py-2 bg-wine/30 text-white rounded-lg font-semibold text-sm transition-all';
+            
+            renderAppointments(appointments);
+        }
+
+        // Função para gerar relatórios
+        function generateReports() {
+            populateMonthSelect();
+            updateMonthlyReport();
+            generateFrequencyChart();
+        }
+
+        function populateMonthSelect() {
+            const monthSelect = document.getElementById('monthSelect');
+            const currentDate = new Date();
+            const months = [];
+            
+            // Gerar últimos 12 meses
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                months.push({
+                    value: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
+                    text: date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+                });
+            }
+            
+            monthSelect.innerHTML = months.map(month => 
+                `<option value="${month.value}">${month.text}</option>`
+            ).join('');
+            
+            monthSelect.addEventListener('change', updateMonthlyReport);
+        }
+
+        function updateMonthlyReport() {
+            const monthSelect = document.getElementById('monthSelect');
+            const selectedMonth = monthSelect.value;
+            
+            const monthlyAppointments = appointments.filter(apt => 
+                apt.date.startsWith(selectedMonth)
+            );
+            
+            const total = monthlyAppointments.length;
+            const presentes = monthlyAppointments.filter(apt => apt.status === 'presente');
+            const faltaram = monthlyAppointments.filter(apt => apt.status === 'faltou');
+            
+            document.getElementById('monthlyTotal').textContent = total;
+            document.getElementById('monthlyPresentes').textContent = presentes.length;
+            document.getElementById('monthlyFaltaram').textContent = faltaram.length;
+            
+            // Lista de presentes
+            const listaPresentes = document.getElementById('listaPresentes');
+            if (presentes.length > 0) {
+                listaPresentes.innerHTML = presentes.map(apt => `
+                    <div class="bg-green-500/20 rounded-lg p-3 border border-green-500/30">
+                        <div class="font-semibold text-green-300">${apt.name}</div>
+                        <div class="text-sm text-gray-400">${formatDate(apt.date)} - ${apt.service}</div>
+                    </div>
+                `).join('');
+            } else {
+                listaPresentes.innerHTML = '<div class="text-center text-gray-400 py-4">Nenhum cliente compareceu neste mês</div>';
+            }
+            
+            // Lista de faltaram
+            const listaFaltaram = document.getElementById('listaFaltaram');
+            if (faltaram.length > 0) {
+                listaFaltaram.innerHTML = faltaram.map(apt => `
+                    <div class="bg-red-500/20 rounded-lg p-3 border border-red-500/30">
+                        <div class="font-semibold text-red-300">${apt.name}</div>
+                        <div class="text-sm text-gray-400">${formatDate(apt.date)} - ${apt.service}</div>
+                    </div>
+                `).join('');
+            } else {
+                listaFaltaram.innerHTML = '<div class="text-center text-gray-400 py-4">Nenhum cliente faltou neste mês</div>';
+            }
+        }
+
+        function generateFrequencyChart() {
+            const clientFrequency = {};
+            
+            appointments.forEach(apt => {
+                if (apt.status === 'presente') {
+                    clientFrequency[apt.name] = (clientFrequency[apt.name] || 0) + 1;
+                }
+            });
+            
+            const sortedClients = Object.entries(clientFrequency)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+            
+            const frequenciaDiv = document.getElementById('frequenciaClientes');
+            
+            if (sortedClients.length > 0) {
+                const maxFrequency = Math.max(...sortedClients.map(([,freq]) => freq));
+                
+                frequenciaDiv.innerHTML = sortedClients.map(([name, frequency]) => {
+                    const percentage = (frequency / maxFrequency) * 100;
+                    return `
+                        <div class="bg-wine/20 rounded-xl p-4 border border-wine/30">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gold font-semibold">${name}</span>
+                                <span class="text-white font-bold">${frequency} visitas</span>
+                            </div>
+                            <div class="w-full bg-black/30 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-gold to-gold-light h-3 rounded-full transition-all duration-500" 
+                                     style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                frequenciaDiv.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum dado de frequência disponível</div>';
+            }
+        }
+
+        // Função para editar agendamento
+        window.editAppointment = function(id) {
+            if (!currentUser) return;
+            
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                const appointments = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                const appointment = appointments.find(apt => apt.id === id);
+                if (!appointment) return;
+                
+                editingAppointment = appointment;
+                
+                // Preencher formulário de edição
+                document.getElementById('editClientName').value = appointment.name;
+                document.getElementById('editService').value = appointment.service;
+                document.getElementById('editDate').value = appointment.date;
+                document.getElementById('editTime').value = appointment.time;
+                document.getElementById('editNotes').value = appointment.notes || '';
+                
+                // Mostrar modal
+                document.getElementById('editModal').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Erro ao editar agendamento:', error);
+                showError('Erro ao editar agendamento');
+            }
+        };
+
+        window.deleteAppointment = function(id) {
+            if (!currentUser) return;
+            
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                const appointments = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                const filteredAppointments = appointments.filter(apt => apt.id !== id);
+                localStorage.setItem(storageKey, JSON.stringify(filteredAppointments));
+                
+                console.log('Agendamento excluído:', id);
+                loadAppointments();
+                
+            } catch (error) {
+                console.error('Erro ao excluir agendamento:', error);
+                showError('Erro ao excluir agendamento');
+            }
+        };
+
+        // Função para mostrar detalhes das estatísticas
+        function showStatsDetails(type) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppointments = appointments.filter(apt => apt.date === today);
+            
+            let filteredAppointments = [];
+            let title = '';
+            
+            switch(type) {
+                case 'total':
+                    filteredAppointments = todayAppointments;
+                    title = '📅 Todos os Agendamentos de Hoje';
+                    break;
+                case 'presente':
+                    filteredAppointments = todayAppointments.filter(apt => apt.status === 'presente');
+                    title = '✅ Clientes que Compareceram Hoje';
+                    break;
+                case 'faltou':
+                    filteredAppointments = todayAppointments.filter(apt => apt.status === 'faltou');
+                    title = '❌ Clientes que Faltaram Hoje';
+                    break;
+                case 'pendente':
+                    filteredAppointments = todayAppointments.filter(apt => apt.status === 'pendente');
+                    title = '⏳ Agendamentos Pendentes de Hoje';
+                    break;
+            }
+            
+            document.getElementById('statsModalTitle').textContent = title;
+            
+            if (filteredAppointments.length === 0) {
+                document.getElementById('statsModalContent').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-6xl mb-4">😔</div>
+                        <p class="text-xl text-gray-400">Nenhum agendamento encontrado</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('statsModalContent').innerHTML = filteredAppointments.map(apt => {
+                    const statusClass = apt.status === 'presente' ? 'bg-green-500/20 border-green-500/30' : 
+                                       apt.status === 'faltou' ? 'bg-red-500/20 border-red-500/30' : 
+                                       'bg-yellow-500/20 border-yellow-500/30';
+                    const statusText = apt.status === 'presente' ? '✅ Compareceu' : 
+                                      apt.status === 'faltou' ? '❌ Faltou' : '⏳ Pendente';
+                    
+                    return `
+                        <div class="${statusClass} rounded-xl p-4 border">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-gold font-bold text-lg">${apt.name}</h3>
+                                    <div class="flex items-center gap-4 mt-2 text-gray-300">
+                                        <span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm">${apt.service}</span>
+                                        <span>${apt.time}</span>
+                                    </div>
+                                    ${apt.notes ? `<p class="text-gray-400 text-sm mt-2">${apt.notes}</p>` : ''}
+                                </div>
+                                <span class="text-sm font-semibold">${statusText}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            document.getElementById('statsModal').classList.remove('hidden');
+        }
+
+        // Sistema de lembretes
+        function checkReminders() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            const todayAppointments = appointments.filter(apt => 
+                apt.date === today && apt.status === 'pendente'
+            );
+            
+            todayAppointments.forEach(apt => {
+                const [hours, minutes] = apt.time.split(':').map(Number);
+                const appointmentTime = hours * 60 + minutes;
+                const timeDiff = appointmentTime - currentTime;
+                
+                // Lembrete 30 minutos antes
+                if (timeDiff <= 30 && timeDiff > 25) {
+                    showReminder(apt);
+                }
+            });
+        }
+
+        function showReminder(appointment) {
+            const reminderContent = document.getElementById('reminderContent');
+            reminderContent.innerHTML = `
+                <div class="font-bold mb-1">${appointment.name}</div>
+                <div class="text-sm">Agendamento às ${appointment.time}</div>
+                <div class="text-sm">Serviço: ${appointment.service}</div>
+                <div class="text-xs mt-2 opacity-80">Em 30 minutos</div>
+            `;
+            
+            const notification = document.getElementById('reminderNotification');
+            notification.classList.remove('hidden');
+            
+            // Auto-fechar após 10 segundos
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 10000);
+        }
+
+        function startReminderSystem() {
+            // Verificar lembretes a cada minuto
+            reminderInterval = setInterval(checkReminders, 60000);
+            // Verificar imediatamente
+            checkReminders();
+        }
+
+        function stopReminderSystem() {
+            if (reminderInterval) {
+                clearInterval(reminderInterval);
+                reminderInterval = null;
+            }
+        }
+
+        // Event listeners
+        loginBtn.addEventListener('click', handleEmailAuth);
+        googleBtn.addEventListener('click', handleGoogleAuth);
+        toggleMode.addEventListener('click', toggleAuthMode);
+        clientForm.addEventListener('submit', addAppointment);
+        document.getElementById('clienteForm').addEventListener('submit', addCliente);
+        logoutBtn.addEventListener('click', () => signOut(auth));
+        
+        // Event listeners das abas
+        tabAgenda.addEventListener('click', () => switchTab('agenda'));
+        tabClientes.addEventListener('click', () => switchTab('clientes'));
+        tabCalendar.addEventListener('click', () => switchTab('calendar'));
+        tabRelatorios.addEventListener('click', () => switchTab('relatorios'));
+        
+        // Event listeners dos filtros
+        document.getElementById('filterAll').addEventListener('click', () => setFilter('all'));
+        document.getElementById('filterPendente').addEventListener('click', () => setFilter('pendente'));
+        document.getElementById('filterPresente').addEventListener('click', () => setFilter('presente'));
+        document.getElementById('filterFaltou').addEventListener('click', () => setFilter('faltou'));
+        
+        // Event listeners do calendário
+        prevMonth.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
+        });
+        
+        nextMonth.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        });
+
+        // Enter para fazer login
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !agendaScreen.classList.contains('hidden')) {
+                e.preventDefault();
+            } else if (e.key === 'Enter' && !loginScreen.classList.contains('hidden')) {
+                handleEmailAuth();
+            }
+        });
+
+        // Event listeners para modais
+        document.getElementById('closeEditModal').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+            editingAppointment = null;
+        });
+        
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+            editingAppointment = null;
+        });
+        
+        document.getElementById('closeStatsModal').addEventListener('click', () => {
+            document.getElementById('statsModal').classList.add('hidden');
+        });
+        
+        document.getElementById('closeReminder').addEventListener('click', () => {
+            document.getElementById('reminderNotification').classList.add('hidden');
+        });
+        
+        // Event listeners para estatísticas
+        document.getElementById('statsTotalBtn').addEventListener('click', () => showStatsDetails('total'));
+        document.getElementById('statsPresentesBtn').addEventListener('click', () => showStatsDetails('presente'));
+        document.getElementById('statsFaltaramBtn').addEventListener('click', () => showStatsDetails('faltou'));
+        document.getElementById('statsPendentesBtn').addEventListener('click', () => showStatsDetails('pendente'));
+        
+        // Event listener para formulário de edição
+        document.getElementById('editForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!editingAppointment || !currentUser) return;
+            
+            try {
+                const storageKey = `appointments_${currentUser.uid}`;
+                const savedAppointments = localStorage.getItem(storageKey);
+                const appointments = savedAppointments ? JSON.parse(savedAppointments) : [];
+                
+                const appointmentIndex = appointments.findIndex(apt => apt.id === editingAppointment.id);
+                if (appointmentIndex === -1) return;
+                
+                // Atualizar dados
+                appointments[appointmentIndex] = {
+                    ...appointments[appointmentIndex],
+                    name: document.getElementById('editClientName').value.trim(),
+                    service: document.getElementById('editService').value.trim(),
+                    date: document.getElementById('editDate').value,
+                    time: document.getElementById('editTime').value,
+                    notes: document.getElementById('editNotes').value.trim()
+                };
+                
+                // Reordenar por data e hora
+                appointments.sort((a, b) => {
+                    if (a.date !== b.date) return a.date.localeCompare(b.date);
+                    return a.time.localeCompare(b.time);
+                });
+                
+                localStorage.setItem(storageKey, JSON.stringify(appointments));
+                
+                // Fechar modal e recarregar
+                document.getElementById('editModal').classList.add('hidden');
+                editingAppointment = null;
+                loadAppointments();
+                
+            } catch (error) {
+                console.error('Erro ao salvar edição:', error);
+                showError('Erro ao salvar alterações');
+            }
+        });
+
+        // Event listeners para pesquisa de clientes
+        document.getElementById('clientName').addEventListener('input', (e) => {
+            searchClientes(e.target.value);
+        });
+        
+        document.getElementById('clientName').addEventListener('blur', () => {
+            setTimeout(() => {
+                document.getElementById('clientSearchResults').classList.add('hidden');
+            }, 200);
+        });
+        
+        document.getElementById('searchClientes').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredClientes = clientes.filter(cliente => 
+                cliente.nome.toLowerCase().includes(searchTerm) ||
+                (cliente.telefone && cliente.telefone.includes(searchTerm)) ||
+                (cliente.email && cliente.email.toLowerCase().includes(searchTerm))
+            );
+            renderClientes(filteredClientes);
+        });
+
+        // Monitor de autenticação
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                loginScreen.classList.add('hidden');
+                agendaScreen.classList.remove('hidden');
+                document.getElementById('date').valueAsDate = new Date();
+                loadAppointments();
+                loadClientes();
+                startReminderSystem();
+            } else {
+                currentUser = null;
+                loginScreen.classList.remove('hidden');
+                agendaScreen.classList.add('hidden');
+                stopReminderSystem();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984cd974452536f4',t:'MTc1ODgyNzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
