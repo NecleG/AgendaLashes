@@ -8,11 +8,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc, updateDoc, onSnapshot, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-        
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script>
         console.log('Carregando Firebase...');
         
         // Suas configurações do Firebase
@@ -26,13 +26,19 @@
             measurementId: "G-62GWTEQG3W"
         };
         
+        // Inicializar Firebase imediatamente
         try {
-            // Inicializar Firebase
             console.log('Inicializando Firebase...');
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            const googleProvider = new GoogleAuthProvider();
+            
+            // Inicializar Firebase
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            // Obter referências
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const googleProvider = new firebase.auth.GoogleAuthProvider();
             
             console.log('Firebase inicializado com sucesso!');
             console.log('Auth:', auth);
@@ -41,29 +47,9 @@
             // Disponibilizar globalmente
             window.firebaseAuth = auth;
             window.firebaseDB = db;
-            window.firebaseUtils = {
-                signInWithEmailAndPassword,
-                createUserWithEmailAndPassword,
-                signInWithPopup,
-                GoogleAuthProvider: googleProvider,
-                signOut,
-                onAuthStateChanged,
-                collection,
-                doc,
-                setDoc,
-                getDoc,
-                getDocs,
-                addDoc,
-                deleteDoc,
-                updateDoc,
-                onSnapshot,
-                query,
-                where,
-                orderBy
-            };
-            
-            // Sinalizar que Firebase está pronto
+            window.googleProvider = googleProvider;
             window.firebaseReady = true;
+            
             console.log('Firebase disponível globalmente!');
             
         } catch (error) {
@@ -132,6 +118,11 @@
         .calendar-day {
             transition: all 0.2s ease;
             position: relative;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         
         .calendar-day:hover {
@@ -234,6 +225,150 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
+        }
+        
+        /* Complete Mobile Responsiveness */
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+            
+            .glass-effect {
+                padding: 16px !important;
+                margin: 8px 0 !important;
+            }
+            
+            .calendar-day {
+                min-height: 40px !important;
+                padding: 8px 4px !important;
+                font-size: 14px !important;
+            }
+            
+            .calendar-day:hover {
+                transform: scale(1.02) !important;
+            }
+            
+            .has-appointment::after {
+                width: 6px !important;
+                height: 6px !important;
+                top: 4px !important;
+                right: 4px !important;
+            }
+            
+            .btn-primary, .btn-secondary {
+                font-size: 14px !important;
+                padding: 12px 16px !important;
+                white-space: nowrap;
+            }
+            
+            .input-field {
+                font-size: 16px !important;
+                padding: 14px !important;
+            }
+            
+            .modal-backdrop .glass-effect {
+                margin: 16px !important;
+                max-height: 85vh !important;
+                overflow-y: auto !important;
+                max-width: calc(100vw - 32px) !important;
+            }
+            
+            h1 {
+                font-size: 20px !important;
+            }
+            
+            h2 {
+                font-size: 20px !important;
+            }
+            
+            h3 {
+                font-size: 18px !important;
+            }
+            
+            .nav-btn {
+                padding: 12px 8px !important;
+                font-size: 12px !important;
+                min-height: 70px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .nav-btn i {
+                font-size: 18px !important;
+                margin-bottom: 4px !important;
+                margin-right: 0 !important;
+            }
+            
+            .nav-btn span {
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+                text-align: center !important;
+            }
+            
+            .grid {
+                gap: 8px !important;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 12px !important;
+            }
+            
+            .space-y-6 > * + * {
+                margin-top: 16px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+            
+            .glass-effect {
+                padding: 12px !important;
+                margin: 4px 0 !important;
+            }
+            
+            .calendar-day {
+                min-height: 35px !important;
+                font-size: 12px !important;
+                padding: 6px 2px !important;
+            }
+            
+            .nav-btn {
+                padding: 10px 4px !important;
+                font-size: 10px !important;
+                min-height: 65px !important;
+            }
+            
+            .nav-btn i {
+                font-size: 16px !important;
+            }
+            
+            .nav-btn span {
+                font-size: 10px !important;
+            }
+            
+            .modal-backdrop .glass-effect {
+                margin: 8px !important;
+                max-width: calc(100vw - 16px) !important;
+            }
+            
+            h1 {
+                font-size: 18px !important;
+            }
+            
+            h2 {
+                font-size: 18px !important;
+            }
+            
+            .btn-primary, .btn-secondary {
+                font-size: 12px !important;
+                padding: 10px 12px !important;
+            }
         }
     </style>
 </head>
@@ -343,21 +478,21 @@
         <!-- Header -->
         <header class="custom-brown shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent"></div>
-            <div class="container mx-auto px-4 py-6 relative">
+            <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 relative">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl md:text-4xl font-bold gold-text">
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-lg sm:text-2xl md:text-4xl font-bold gold-text truncate">
                             Lash Design Studio
                         </h1>
-                        <p class="text-yellow-200 mt-1 text-sm md:text-lg font-light">Sistema de Agendamento Profissional</p>
+                        <p class="text-yellow-200 mt-1 text-xs sm:text-sm md:text-lg font-light hidden sm:block">Sistema de Agendamento Profissional</p>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-right hidden md:block">
-                            <p class="text-yellow-300 font-semibold" id="user-name">Usuário</p>
-                            <p class="text-yellow-200 text-sm" id="user-email">email@exemplo.com</p>
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <div class="text-right hidden lg:block">
+                            <p class="text-yellow-300 font-semibold text-sm" id="user-name">Usuário</p>
+                            <p class="text-yellow-200 text-xs" id="user-email">email@exemplo.com</p>
                         </div>
-                        <button onclick="logout()" class="btn-secondary px-4 py-2 rounded-xl font-bold">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                        <button onclick="logout()" class="btn-secondary px-2 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm">
+                            <i class="fas fa-sign-out-alt sm:mr-2"></i><span class="hidden sm:inline">Sair</span>
                         </button>
                     </div>
                 </div>
@@ -366,19 +501,27 @@
 
         <!-- Navigation -->
         <nav class="glass-effect border-b border-yellow-500/30">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-wrap justify-center gap-2 py-4 md:py-6">
-                    <button onclick="showTab('agenda')" class="nav-btn btn-primary px-4 md:px-8 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base">
-                        <i class="fas fa-calendar-alt mr-1 md:mr-2"></i><span class="hidden sm:inline">Agenda</span>
+            <div class="container mx-auto px-2 sm:px-4">
+                <div class="grid grid-cols-5 gap-1 py-3 sm:py-4 md:py-6">
+                    <button onclick="showTab('agenda')" class="nav-btn btn-primary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
+                        <i class="fas fa-calendar-alt text-sm mb-1 sm:mb-0 sm:mr-2"></i>
+                        <span class="text-xs">Agenda</span>
                     </button>
-                    <button onclick="showTab('clientes')" class="nav-btn btn-secondary px-4 md:px-8 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base">
-                        <i class="fas fa-users mr-1 md:mr-2"></i><span class="hidden sm:inline">Clientes</span>
+                    <button onclick="showTab('clientes')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
+                        <i class="fas fa-users text-sm mb-1 sm:mb-0 sm:mr-2"></i>
+                        <span class="text-xs">Clientes</span>
                     </button>
-                    <button onclick="showTab('procedimentos')" class="nav-btn btn-secondary px-4 md:px-8 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base">
-                        <i class="fas fa-spa mr-1 md:mr-2"></i><span class="hidden sm:inline">Procedimentos</span>
+                    <button onclick="showTab('procedimentos')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
+                        <i class="fas fa-spa text-sm mb-1 sm:mb-0 sm:mr-2"></i>
+                        <span class="text-xs">Proc.</span>
                     </button>
-                    <button onclick="showTab('calendario')" class="nav-btn btn-secondary px-4 md:px-8 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base">
-                        <i class="fas fa-calendar mr-1 md:mr-2"></i><span class="hidden sm:inline">Calendário</span>
+                    <button onclick="showTab('calendario')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
+                        <i class="fas fa-calendar text-sm mb-1 sm:mb-0 sm:mr-2"></i>
+                        <span class="text-xs">Calendário</span>
+                    </button>
+                    <button onclick="showTab('relatorios')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
+                        <i class="fas fa-chart-bar text-sm mb-1 sm:mb-0 sm:mr-2"></i>
+                        <span class="text-xs">Relatórios</span>
                     </button>
                 </div>
             </div>
@@ -390,48 +533,48 @@
     </div>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         
         <!-- Agenda Tab -->
         <div id="agenda-tab" class="tab-content fade-in">
-            <div class="glass-effect rounded-2xl p-8 shadow-2xl">
-                <div class="flex items-center mb-8">
-                    <i class="fas fa-calendar-plus text-3xl gold-text mr-4"></i>
-                    <h2 class="text-3xl font-bold gold-text">Novo Agendamento</h2>
+            <div class="glass-effect rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
+                <div class="flex items-center mb-6 sm:mb-8">
+                    <i class="fas fa-calendar-plus text-2xl sm:text-3xl gold-text mr-2 sm:mr-4"></i>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold gold-text">Novo Agendamento</h2>
                 </div>
                 
                 <form id="agendamento-form" class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
+                    <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="sm:col-span-2">
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
                                 <i class="fas fa-user mr-2"></i>Cliente *
                             </label>
-                            <select id="cliente-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
+                            <select id="cliente-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
                                 <option value="">Selecione um cliente</option>
                             </select>
                         </div>
                         
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
+                        <div class="sm:col-span-2">
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
                                 <i class="fas fa-spa mr-2"></i>Procedimento *
                             </label>
-                            <select id="procedimento-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
+                            <select id="procedimento-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
                                 <option value="">Selecione um procedimento</option>
                             </select>
                         </div>
                         
                         <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
                                 <i class="fas fa-dollar-sign mr-2"></i>Valor
                             </label>
-                            <input type="text" id="valor-display" readonly class="w-full input-field rounded-xl px-4 py-4 text-yellow-400 font-bold">
+                            <input type="text" id="valor-display" readonly class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-yellow-400 font-bold text-sm sm:text-base">
                         </div>
                         
                         <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                <i class="fas fa-credit-card mr-2"></i>Forma de Pagamento *
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
+                                <i class="fas fa-credit-card mr-2"></i>Pagamento *
                             </label>
-                            <select id="pagamento-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
+                            <select id="pagamento-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
                                 <option value="">Selecione</option>
                                 <option value="dinheiro">Dinheiro</option>
                                 <option value="cartao">Cartão</option>
@@ -441,17 +584,17 @@
                         </div>
                         
                         <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
                                 <i class="fas fa-calendar mr-2"></i>Data *
                             </label>
-                            <input type="date" id="data-agendamento" required class="w-full input-field rounded-xl px-4 py-4 text-white">
+                            <input type="date" id="data-agendamento" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
                         </div>
                         
                         <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
+                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
                                 <i class="fas fa-clock mr-2"></i>Horário *
                             </label>
-                            <input type="time" id="hora-agendamento" required class="w-full input-field rounded-xl px-4 py-4 text-white">
+                            <input type="time" id="hora-agendamento" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
                         </div>
                     </div>
                     
@@ -706,33 +849,33 @@
         <!-- Calendário Tab -->
         <div id="calendario-tab" class="tab-content hidden">
             <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                    <div class="flex items-center">
-                        <i class="fas fa-calendar-alt text-3xl gold-text mr-4"></i>
-                        <h2 class="text-3xl font-bold gold-text">Calendário de Agendamentos</h2>
+                <div class="flex flex-col space-y-4 mb-6 sm:mb-8">
+                    <div class="flex items-center justify-center sm:justify-start">
+                        <i class="fas fa-calendar-alt text-2xl sm:text-3xl gold-text mr-2 sm:mr-4"></i>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold gold-text text-center sm:text-left">Calendário</h2>
                     </div>
-                    <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                        <button onclick="previousMonth()" class="btn-primary px-6 py-3 rounded-xl font-bold">
+                    <div class="flex items-center justify-center space-x-2 sm:space-x-4">
+                        <button onclick="previousMonth()" class="btn-primary px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <span id="current-month" class="text-xl font-bold text-yellow-300 min-w-48 text-center"></span>
-                        <button onclick="nextMonth()" class="btn-primary px-6 py-3 rounded-xl font-bold">
+                        <span id="current-month" class="text-sm sm:text-lg md:text-xl font-bold text-yellow-300 min-w-32 sm:min-w-48 text-center"></span>
+                        <button onclick="nextMonth()" class="btn-primary px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-7 gap-3 mb-6">
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Dom</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Seg</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Ter</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Qua</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Qui</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Sex</div>
-                    <div class="text-center font-bold text-yellow-400 py-3 text-lg">Sáb</div>
+                <div class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 mb-4 sm:mb-6">
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Dom</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Seg</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Ter</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Qua</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Qui</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Sex</div>
+                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Sáb</div>
                 </div>
                 
-                <div id="calendar-grid" class="grid grid-cols-7 gap-3 mb-8">
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 mb-6 sm:mb-8">
                     <!-- Dias do calendário serão inseridos aqui -->
                 </div>
                 
@@ -743,6 +886,153 @@
                     </div>
                     <div id="agendamentos-dia" class="space-y-4">
                         <p class="text-gray-400 text-center py-8">Selecione um dia no calendário para ver os agendamentos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatórios Tab -->
+        <div id="relatorios-tab" class="tab-content hidden">
+            <div class="space-y-8">
+                <!-- Cards de Estatísticas -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <i class="fas fa-users text-3xl gold-text mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white" id="total-clientes">0</h3>
+                        <p class="text-yellow-300">Total Clientes</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <i class="fas fa-calendar-check text-3xl gold-text mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white" id="agendamentos-mes">0</h3>
+                        <p class="text-yellow-300">Este Mês</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <i class="fas fa-check-circle text-3xl text-green-400 mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white" id="compareceram">0</h3>
+                        <p class="text-yellow-300">Compareceram</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <i class="fas fa-times-circle text-3xl text-red-400 mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white" id="faltaram">0</h3>
+                        <p class="text-yellow-300">Faltaram</p>
+                    </div>
+                </div>
+                
+                <!-- Filtros e Controles -->
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-filter text-2xl gold-text mr-3"></i>
+                        <h2 class="text-2xl font-bold gold-text">Filtros e Relatórios</h2>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div>
+                            <label class="block text-yellow-300 font-semibold mb-3">
+                                <i class="fas fa-calendar mr-2"></i>Período
+                            </label>
+                            <select id="filtro-periodo" class="w-full input-field rounded-xl px-4 py-3 text-white">
+                                <option value="mes-atual">Mês Atual</option>
+                                <option value="mes-anterior">Mês Anterior</option>
+                                <option value="ultimos-3-meses">Últimos 3 Meses</option>
+                                <option value="ano-atual">Ano Atual</option>
+                                <option value="personalizado">Período Personalizado</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-yellow-300 font-semibold mb-3">
+                                <i class="fas fa-spa mr-2"></i>Procedimento
+                            </label>
+                            <select id="filtro-procedimento-relatorio" class="w-full input-field rounded-xl px-4 py-3 text-white">
+                                <option value="">Todos os Procedimentos</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-yellow-300 font-semibold mb-3">
+                                <i class="fas fa-check mr-2"></i>Status
+                            </label>
+                            <select id="filtro-status" class="w-full input-field rounded-xl px-4 py-3 text-white">
+                                <option value="">Todos</option>
+                                <option value="agendado">Agendado</option>
+                                <option value="compareceu">Compareceu</option>
+                                <option value="faltou">Faltou</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumo Financeiro -->
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="glass-effect rounded-xl p-6 border border-green-500/30">
+                            <h4 class="text-lg font-bold text-green-400 mb-2">Receita Total</h4>
+                            <p class="text-2xl font-bold text-white" id="receita-total">R$ 0,00</p>
+                        </div>
+                        
+                        <div class="glass-effect rounded-xl p-6 border border-blue-500/30">
+                            <h4 class="text-lg font-bold text-blue-400 mb-2">Receita Realizada</h4>
+                            <p class="text-2xl font-bold text-white" id="receita-realizada">R$ 0,00</p>
+                        </div>
+                        
+                        <div class="glass-effect rounded-xl p-6 border border-red-500/30">
+                            <h4 class="text-lg font-bold text-red-400 mb-2">Receita Perdida</h4>
+                            <p class="text-2xl font-bold text-white" id="receita-perdida">R$ 0,00</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Botões de Ação -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-8">
+                        <button onclick="gerarRelatorio()" class="btn-primary py-3 rounded-xl font-bold">
+                            <i class="fas fa-chart-line mr-2"></i>Gerar Relatório
+                        </button>
+                        
+                        <button onclick="exportarCSV()" class="btn-secondary py-3 rounded-xl font-bold">
+                            <i class="fas fa-download mr-2"></i>Exportar CSV
+                        </button>
+                        
+                        <button onclick="limparFiltros()" class="btn-secondary py-3 rounded-xl font-bold">
+                            <i class="fas fa-eraser mr-2"></i>Limpar Filtros
+                        </button>
+                        
+                        <button onclick="relatorioMensal()" class="btn-secondary py-3 rounded-xl font-bold">
+                            <i class="fas fa-calendar-alt mr-2"></i>Relatório Mensal
+                        </button>
+                    </div>
+                    
+                    <!-- Ações Rápidas -->
+                    <div class="border-t border-yellow-500/30 pt-6">
+                        <h3 class="text-xl font-bold gold-text mb-4">Ações Rápidas</h3>
+                        <div class="grid md:grid-cols-4 gap-4">
+                            <button onclick="marcarComparecimentoHoje()" class="btn-primary py-3 rounded-xl font-bold">
+                                <i class="fas fa-check mr-2"></i>Marcar Comparecimento Hoje
+                            </button>
+                            
+                            <button onclick="marcarFaltasOntem()" class="btn-secondary py-3 rounded-xl font-bold">
+                                <i class="fas fa-times mr-2"></i>Marcar Faltas Ontem
+                            </button>
+                            
+                            <button onclick="topClientes()" class="btn-secondary py-3 rounded-xl font-bold">
+                                <i class="fas fa-trophy mr-2"></i>Top 10 Clientes
+                            </button>
+                            
+                            <button onclick="proximosAgendamentos()" class="btn-secondary py-3 rounded-xl font-bold">
+                                <i class="fas fa-clock mr-2"></i>Próximos Agendamentos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lista Detalhada de Relatórios -->
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-list-ul text-2xl gold-text mr-3"></i>
+                        <h2 class="text-2xl font-bold gold-text">Relatório Detalhado</h2>
+                    </div>
+                    
+                    <div id="relatorio-detalhado" class="space-y-4">
+                        <p class="text-gray-400 text-center py-8">Clique em "Gerar Relatório" para ver os dados detalhados</p>
                     </div>
                 </div>
             </div>
@@ -843,29 +1133,28 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            // Função para verificar se Firebase está pronto
-            function checkFirebaseReady() {
-                if (window.firebaseReady && window.firebaseAuth && window.firebaseDB && window.firebaseUtils) {
-                    console.log('Firebase está pronto! Inicializando autenticação...');
-                    initializeAuth();
-                } else if (window.firebaseError) {
-                    console.error('Erro no Firebase:', window.firebaseError);
-                    showNotification('Erro ao conectar com Firebase!', 'error');
-                } else {
-                    console.log('Aguardando Firebase carregar...');
-                    setTimeout(checkFirebaseReady, 500);
-                }
+            // Verificar se Firebase está pronto
+            if (window.firebaseReady && window.firebaseAuth && window.firebaseDB) {
+                console.log('Firebase está pronto! Inicializando autenticação...');
+                initializeAuth();
+            } else if (window.firebaseError) {
+                console.error('Erro no Firebase:', window.firebaseError);
+                showNotification('Erro ao conectar com Firebase!', 'error');
+            } else {
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.firebaseReady && window.firebaseAuth && window.firebaseDB) {
+                        initializeAuth();
+                    } else {
+                        showNotification('Erro ao carregar Firebase!', 'error');
+                    }
+                }, 2000);
             }
-            
-            // Iniciar verificação
-            checkFirebaseReady();
         });
 
         // Sistema de Autenticação Firebase
         function initializeAuth() {
-            const { onAuthStateChanged } = window.firebaseUtils;
-            
-            onAuthStateChanged(window.firebaseAuth, (user) => {
+            window.firebaseAuth.onAuthStateChanged((user) => {
                 if (user) {
                     currentUser = user;
                     showMainApp(user);
@@ -894,6 +1183,7 @@
             updateCalendar();
             updateAgendamentosHoje();
             checkUpcomingAppointments();
+            updateRelatorios();
             
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
@@ -912,13 +1202,13 @@
             setInterval(checkUpcomingAppointments, 60000);
         }
 
-        // Funções de Login
-        function showLogin() {
+        // Funções de Login - Disponibilizar globalmente
+        window.showLogin = function() {
             document.getElementById('login-form').classList.remove('hidden');
             document.getElementById('register-form').classList.add('hidden');
         }
 
-        function showRegister() {
+        window.showRegister = function() {
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('register-form').classList.remove('hidden');
         }
@@ -933,7 +1223,7 @@
             document.getElementById('auth-loading').classList.add('hidden');
         }
 
-        async function loginWithEmail() {
+        window.loginWithEmail = async function() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
@@ -945,8 +1235,7 @@
             showAuthLoading();
             
             try {
-                const { signInWithEmailAndPassword } = window.firebaseUtils;
-                await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                await window.firebaseAuth.signInWithEmailAndPassword(email, password);
                 showNotification('Login realizado com sucesso!', 'success');
             } catch (error) {
                 hideAuthLoading();
@@ -956,7 +1245,7 @@
             }
         }
 
-        async function registerWithEmail() {
+        window.registerWithEmail = async function() {
             const name = document.getElementById('register-name').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
@@ -980,13 +1269,10 @@
             showAuthLoading();
             
             try {
-                const { createUserWithEmailAndPassword } = window.firebaseUtils;
-                const { doc, setDoc } = window.firebaseUtils;
-                
-                const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                const userCredential = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
                 
                 // Salvar dados do usuário
-                await setDoc(doc(window.firebaseDB, 'users', userCredential.user.uid), {
+                await window.firebaseDB.collection('users').doc(userCredential.user.uid).set({
                     name: name,
                     email: email,
                     createdAt: new Date().toISOString()
@@ -1001,21 +1287,18 @@
             }
         }
 
-        async function loginWithGoogle() {
+        window.loginWithGoogle = async function() {
             showAuthLoading();
             
             try {
-                const { signInWithPopup } = window.firebaseUtils;
-                const { doc, setDoc, getDoc } = window.firebaseUtils;
-                
-                const result = await signInWithPopup(window.firebaseAuth, window.firebaseUtils.GoogleAuthProvider);
+                const result = await window.firebaseAuth.signInWithPopup(window.googleProvider);
                 
                 // Verificar se é primeiro login e salvar dados
-                const userRef = doc(window.firebaseDB, 'users', result.user.uid);
-                const snapshot = await getDoc(userRef);
+                const userRef = window.firebaseDB.collection('users').doc(result.user.uid);
+                const snapshot = await userRef.get();
                 
-                if (!snapshot.exists()) {
-                    await setDoc(userRef, {
+                if (!snapshot.exists) {
+                    await userRef.set({
                         name: result.user.displayName,
                         email: result.user.email,
                         createdAt: new Date().toISOString()
@@ -1031,15 +1314,289 @@
             }
         }
 
-        async function logout() {
+        window.logout = async function() {
             try {
-                const { signOut } = window.firebaseUtils;
-                await signOut(window.firebaseAuth);
+                await window.firebaseAuth.signOut();
                 showNotification('Logout realizado com sucesso!', 'success');
             } catch (error) {
                 console.error('Erro no logout:', error);
                 showNotification('Erro no logout!', 'error');
             }
+        }
+
+        // Função de notificação
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl shadow-2xl max-w-sm ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+            } text-white`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${
+                        type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                    } mr-3"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Funções de relatórios adicionais
+        window.exportarCSV = function() {
+            const agendamentosFiltrados = getFilteredAppointments();
+            
+            if (agendamentosFiltrados.length === 0) {
+                showNotification('Nenhum dado para exportar!', 'warning');
+                return;
+            }
+            
+            let csvContent = 'Data,Hora,Cliente,Procedimento,Valor,Pagamento,Status\n';
+            
+            agendamentosFiltrados.forEach(agendamento => {
+                const cliente = clientes.find(c => c.id === agendamento.clienteId);
+                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                
+                csvContent += `${new Date(agendamento.data).toLocaleDateString('pt-BR')},${agendamento.hora},"${cliente?.nome || 'N/A'}","${procedimento?.nome || 'N/A'}",${procedimento?.valor.toFixed(2) || '0.00'},${agendamento.pagamento},${agendamento.status}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Relatório exportado com sucesso!', 'success');
+        }
+
+        window.limparFiltros = function() {
+            document.getElementById('filtro-periodo').value = 'mes-atual';
+            document.getElementById('filtro-procedimento-relatorio').value = '';
+            document.getElementById('filtro-status').value = '';
+            updateRelatorios();
+            document.getElementById('relatorio-detalhado').innerHTML = '<p class="text-gray-400 text-center py-8">Clique em "Gerar Relatório" para ver os dados detalhados</p>';
+            showNotification('Filtros limpos!', 'success');
+        }
+
+        window.relatorioMensal = function() {
+            document.getElementById('filtro-periodo').value = 'mes-atual';
+            gerarRelatorio();
+        }
+
+        window.marcarComparecimentoHoje = async function() {
+            const hoje = new Date().toISOString().split('T')[0];
+            const agendamentosHoje = agendamentos.filter(a => a.data === hoje && a.status === 'agendado');
+            
+            if (agendamentosHoje.length === 0) {
+                showNotification('Nenhum agendamento pendente para hoje!', 'info');
+                return;
+            }
+            
+            try {
+                for (const agendamento of agendamentosHoje) {
+                    await window.firebaseDB.collection('agendamentos').doc(agendamento.id).update({
+                        status: 'compareceu',
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                showNotification(`${agendamentosHoje.length} agendamentos marcados como compareceram!`, 'success');
+            } catch (error) {
+                console.error('Erro ao marcar comparecimentos:', error);
+                showNotification('Erro ao marcar comparecimentos!', 'error');
+            }
+        }
+
+        window.marcarFaltasOntem = async function() {
+            const ontem = new Date();
+            ontem.setDate(ontem.getDate() - 1);
+            const ontemStr = ontem.toISOString().split('T')[0];
+            
+            const agendamentosOntem = agendamentos.filter(a => a.data === ontemStr && a.status === 'agendado');
+            
+            if (agendamentosOntem.length === 0) {
+                showNotification('Nenhum agendamento pendente de ontem!', 'info');
+                return;
+            }
+            
+            try {
+                for (const agendamento of agendamentosOntem) {
+                    await window.firebaseDB.collection('agendamentos').doc(agendamento.id).update({
+                        status: 'faltou',
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                showNotification(`${agendamentosOntem.length} agendamentos marcados como faltaram!`, 'success');
+            } catch (error) {
+                console.error('Erro ao marcar faltas:', error);
+                showNotification('Erro ao marcar faltas!', 'error');
+            }
+        }
+
+        window.topClientes = function() {
+            const clienteStats = {};
+            
+            agendamentos.forEach(agendamento => {
+                if (agendamento.status === 'compareceu') {
+                    const cliente = clientes.find(c => c.id === agendamento.clienteId);
+                    if (cliente) {
+                        if (!clienteStats[cliente.id]) {
+                            clienteStats[cliente.id] = {
+                                nome: cliente.nome,
+                                count: 0,
+                                valor: 0
+                            };
+                        }
+                        clienteStats[cliente.id].count++;
+                        
+                        const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                        if (procedimento) {
+                            clienteStats[cliente.id].valor += procedimento.valor;
+                        }
+                    }
+                }
+            });
+            
+            const topClientes = Object.values(clienteStats)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10);
+            
+            const container = document.getElementById('relatorio-detalhado');
+            container.innerHTML = '<h3 class="text-xl font-bold gold-text mb-6">Top 10 Clientes</h3>';
+            
+            if (topClientes.length === 0) {
+                container.innerHTML += '<p class="text-gray-400 text-center py-8">Nenhum cliente com procedimentos realizados</p>';
+                return;
+            }
+            
+            topClientes.forEach((cliente, index) => {
+                const div = document.createElement('div');
+                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold gold-text mr-4">#${index + 1}</span>
+                            <div>
+                                <h4 class="font-bold text-yellow-300">${cliente.nome}</h4>
+                                <p class="text-gray-300">${cliente.count} procedimentos realizados</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-green-400 font-bold text-lg">R$ ${cliente.valor.toFixed(2)}</p>
+                            <p class="text-gray-300 text-sm">Total gasto</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.proximosAgendamentos = function() {
+            const hoje = new Date();
+            const proximosDias = new Date();
+            proximosDias.setDate(hoje.getDate() + 7);
+            
+            const proximosAgendamentos = agendamentos.filter(a => {
+                const dataAgendamento = new Date(a.data);
+                return dataAgendamento >= hoje && dataAgendamento <= proximosDias && a.status === 'agendado';
+            }).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+            
+            const container = document.getElementById('relatorio-detalhado');
+            container.innerHTML = '<h3 class="text-xl font-bold gold-text mb-6">Próximos 7 Dias</h3>';
+            
+            if (proximosAgendamentos.length === 0) {
+                container.innerHTML += '<p class="text-gray-400 text-center py-8">Nenhum agendamento nos próximos 7 dias</p>';
+                return;
+            }
+            
+            proximosAgendamentos.forEach(agendamento => {
+                const cliente = clientes.find(c => c.id === agendamento.clienteId);
+                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                
+                const div = document.createElement('div');
+                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
+                div.innerHTML = `
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Data/Hora</p>
+                            <p class="text-white">${new Date(agendamento.data).toLocaleDateString('pt-BR')} - ${agendamento.hora}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Cliente</p>
+                            <p class="text-white">${cliente?.nome || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Procedimento</p>
+                            <p class="text-white">${procedimento?.nome || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Valor</p>
+                            <p class="text-green-400 font-bold">R$ ${procedimento?.valor.toFixed(2) || '0.00'}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function getFilteredAppointments() {
+            const periodo = document.getElementById('filtro-periodo').value;
+            const procedimentoId = document.getElementById('filtro-procedimento-relatorio').value;
+            const status = document.getElementById('filtro-status').value;
+            
+            let agendamentosFiltrados = [...agendamentos];
+            
+            // Filtrar por período
+            const hoje = new Date();
+            if (periodo === 'mes-atual') {
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
+                    const data = new Date(a.data);
+                    return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
+                });
+            } else if (periodo === 'mes-anterior') {
+                const mesAnterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
+                    const data = new Date(a.data);
+                    return data.getMonth() === mesAnterior.getMonth() && data.getFullYear() === mesAnterior.getFullYear();
+                });
+            } else if (periodo === 'ultimos-3-meses') {
+                const tresMesesAtras = new Date();
+                tresMesesAtras.setMonth(hoje.getMonth() - 3);
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
+                    const data = new Date(a.data);
+                    return data >= tresMesesAtras;
+                });
+            } else if (periodo === 'ano-atual') {
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
+                    const data = new Date(a.data);
+                    return data.getFullYear() === hoje.getFullYear();
+                });
+            }
+            
+            // Filtrar por procedimento
+            if (procedimentoId) {
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => a.procedimentoId === procedimentoId);
+            }
+            
+            // Filtrar por status
+            if (status) {
+                agendamentosFiltrados = agendamentosFiltrados.filter(a => a.status === status);
+            }
+            
+            return agendamentosFiltrados;
         }
 
         function getErrorMessage(errorCode) {
@@ -1058,91 +1615,78 @@
 
         // Sistema Firestore em Tempo Real
         function setupFirebaseListeners() {
-            const { onSnapshot, collection, query, where } = window.firebaseUtils;
-            
-            // Listener para clientes (sem orderBy para evitar erro de índice)
-            const clientesQuery = query(
-                collection(window.firebaseDB, 'clientes'),
-                where('userId', '==', currentUser.uid)
-            );
-            onSnapshot(clientesQuery, (snapshot) => {
-                clientes = [];
-                snapshot.forEach((doc) => {
-                    clientes.push({ ...doc.data(), id: doc.id });
+            // Listener para clientes
+            window.firebaseDB.collection('clientes')
+                .where('userId', '==', currentUser.uid)
+                .onSnapshot((snapshot) => {
+                    clientes = [];
+                    snapshot.forEach((doc) => {
+                        clientes.push({ ...doc.data(), id: doc.id });
+                    });
+                    // Ordenar no frontend
+                    clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+                    updateClientesList();
+                    updateClienteSelect();
+                    updateRelatorios();
                 });
-                // Ordenar no frontend
-                clientes.sort((a, b) => a.nome.localeCompare(b.nome));
-                updateClientesList();
-                updateClienteSelect();
-            });
             
-            // Listener para procedimentos (sem orderBy para evitar erro de índice)
-            const procedimentosQuery = query(
-                collection(window.firebaseDB, 'procedimentos'),
-                where('userId', '==', currentUser.uid)
-            );
-            onSnapshot(procedimentosQuery, (snapshot) => {
-                procedimentos = [];
-                snapshot.forEach((doc) => {
-                    procedimentos.push({ ...doc.data(), id: doc.id });
+            // Listener para procedimentos
+            window.firebaseDB.collection('procedimentos')
+                .where('userId', '==', currentUser.uid)
+                .onSnapshot((snapshot) => {
+                    procedimentos = [];
+                    snapshot.forEach((doc) => {
+                        procedimentos.push({ ...doc.data(), id: doc.id });
+                    });
+                    // Ordenar no frontend
+                    procedimentos.sort((a, b) => a.nome.localeCompare(b.nome));
+                    updateProcedimentosList();
+                    updateProcedimentoSelect();
+                    updateRelatorios();
                 });
-                // Ordenar no frontend
-                procedimentos.sort((a, b) => a.nome.localeCompare(b.nome));
-                updateProcedimentosList();
-                updateProcedimentoSelect();
-            });
             
-            // Listener para agendamentos (sem orderBy para evitar erro de índice)
-            const agendamentosQuery = query(
-                collection(window.firebaseDB, 'agendamentos'),
-                where('userId', '==', currentUser.uid)
-            );
-            onSnapshot(agendamentosQuery, (snapshot) => {
-                agendamentos = [];
-                snapshot.forEach((doc) => {
-                    agendamentos.push({ ...doc.data(), id: doc.id });
+            // Listener para agendamentos
+            window.firebaseDB.collection('agendamentos')
+                .where('userId', '==', currentUser.uid)
+                .onSnapshot((snapshot) => {
+                    agendamentos = [];
+                    snapshot.forEach((doc) => {
+                        agendamentos.push({ ...doc.data(), id: doc.id });
+                    });
+                    // Ordenar no frontend
+                    agendamentos.sort((a, b) => a.data.localeCompare(b.data));
+                    updateAgendamentosHoje();
+                    updateCalendar();
+                    updateRelatorios();
                 });
-                // Ordenar no frontend
-                agendamentos.sort((a, b) => a.data.localeCompare(b.data));
-                updateAgendamentosHoje();
-                updateCalendar();
-            });
         }
 
         async function loadFirebaseData() {
-            const { getDocs, collection, query, where } = window.firebaseUtils;
-            
             try {
-                // Carregar clientes (sem orderBy)
-                const clientesQuery = query(
-                    collection(window.firebaseDB, 'clientes'),
-                    where('userId', '==', currentUser.uid)
-                );
-                const clientesSnapshot = await getDocs(clientesQuery);
+                // Carregar clientes
+                const clientesSnapshot = await window.firebaseDB.collection('clientes')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
                 clientes = [];
                 clientesSnapshot.forEach((doc) => {
                     clientes.push({ ...doc.data(), id: doc.id });
                 });
                 clientes.sort((a, b) => a.nome.localeCompare(b.nome));
                 
-                // Carregar procedimentos (sem orderBy)
-                const procedimentosQuery = query(
-                    collection(window.firebaseDB, 'procedimentos'),
-                    where('userId', '==', currentUser.uid)
-                );
-                const procedimentosSnapshot = await getDocs(procedimentosQuery);
+                // Carregar procedimentos
+                const procedimentosSnapshot = await window.firebaseDB.collection('procedimentos')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
                 procedimentos = [];
                 procedimentosSnapshot.forEach((doc) => {
                     procedimentos.push({ ...doc.data(), id: doc.id });
                 });
                 procedimentos.sort((a, b) => a.nome.localeCompare(b.nome));
                 
-                // Carregar agendamentos (sem orderBy)
-                const agendamentosQuery = query(
-                    collection(window.firebaseDB, 'agendamentos'),
-                    where('userId', '==', currentUser.uid)
-                );
-                const agendamentosSnapshot = await getDocs(agendamentosQuery);
+                // Carregar agendamentos
+                const agendamentosSnapshot = await window.firebaseDB.collection('agendamentos')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
                 agendamentos = [];
                 agendamentosSnapshot.forEach((doc) => {
                     agendamentos.push({ ...doc.data(), id: doc.id });
@@ -1156,6 +1700,7 @@
                 updateProcedimentoSelect();
                 updateAgendamentosHoje();
                 updateCalendar();
+                updateRelatorios();
                 
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
@@ -1180,8 +1725,17 @@
                 btn.classList.add('btn-secondary');
             });
             
-            event.target.classList.remove('btn-secondary');
-            event.target.classList.add('btn-primary');
+            // Encontrar o botão correto e ativá-lo
+            const targetBtn = event.target.closest('.nav-btn');
+            if (targetBtn) {
+                targetBtn.classList.remove('btn-secondary');
+                targetBtn.classList.add('btn-primary');
+            }
+            
+            // Atualizar relatórios se necessário
+            if (tabName === 'relatorios') {
+                updateRelatorios();
+            }
         }
 
         // Cadastro de Cliente
@@ -1223,18 +1777,16 @@
             console.log('Dados do cliente:', cliente);
             
             try {
-                const { doc, setDoc, addDoc, collection } = window.firebaseUtils;
-                
                 if (clienteId) {
                     // Editar cliente existente
                     console.log('Editando cliente existente...');
-                    await setDoc(doc(window.firebaseDB, 'clientes', clienteId), cliente);
+                    await window.firebaseDB.collection('clientes').doc(clienteId).set(cliente);
                     showNotification('Cliente atualizado com sucesso!', 'success');
                 } else {
                     // Novo cliente
                     console.log('Criando novo cliente...');
                     cliente.createdAt = new Date().toISOString();
-                    const docRef = await addDoc(collection(window.firebaseDB, 'clientes'), cliente);
+                    const docRef = await window.firebaseDB.collection('clientes').add(cliente);
                     console.log('Cliente criado com ID:', docRef.id);
                     showNotification('Cliente cadastrado com sucesso!', 'success');
                 }
@@ -1305,19 +1857,13 @@
             }
             
             try {
-                const { addDoc, collection, doc, setDoc } = window.firebaseUtils;
-                
                 console.log('Salvando procedimento no Firestore...');
                 console.log('Collection path: procedimentos');
                 console.log('User ID:', currentUser.uid);
                 
-                // Tentar usar setDoc com ID gerado manualmente como alternativa
-                const procedimentoId = 'proc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const docRef = doc(window.firebaseDB, 'procedimentos', procedimentoId);
+                const docRef = await window.firebaseDB.collection('procedimentos').add(procedimento);
                 
-                await setDoc(docRef, procedimento);
-                
-                console.log('Procedimento criado com sucesso! ID:', procedimentoId);
+                console.log('Procedimento criado com sucesso! ID:', docRef.id);
                 
                 // Reset form
                 this.reset();
@@ -1358,8 +1904,7 @@
             };
             
             try {
-                const { addDoc, collection } = window.firebaseUtils;
-                await addDoc(collection(window.firebaseDB, 'agendamentos'), agendamento);
+                await window.firebaseDB.collection('agendamentos').add(agendamento);
                 
                 // Reset form
                 this.reset();
@@ -1415,8 +1960,7 @@
             };
             
             try {
-                const { doc, setDoc } = window.firebaseUtils;
-                await setDoc(doc(window.firebaseDB, 'agendamentos', agendamentoId), agendamentoAtualizado);
+                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).set(agendamentoAtualizado);
                 
                 closeModalAgendamento();
                 showNotification('Agendamento atualizado com sucesso!', 'success');
@@ -1599,11 +2143,20 @@
             const select = document.getElementById('procedimento-select');
             select.innerHTML = '<option value="">Selecione um procedimento</option>';
             
+            // Atualizar também o select de relatórios
+            const selectRelatorio = document.getElementById('filtro-procedimento-relatorio');
+            selectRelatorio.innerHTML = '<option value="">Todos os Procedimentos</option>';
+            
             procedimentos.forEach(procedimento => {
                 const option = document.createElement('option');
                 option.value = procedimento.id;
                 option.textContent = `${procedimento.nome} - R$ ${procedimento.valor.toFixed(2)}`;
                 select.appendChild(option);
+                
+                const optionRelatorio = document.createElement('option');
+                optionRelatorio.value = procedimento.id;
+                optionRelatorio.textContent = procedimento.nome;
+                selectRelatorio.appendChild(optionRelatorio);
             });
         }
 
@@ -1636,14 +2189,38 @@
                 const cliente = clientes.find(c => c.id == agendamento.clienteId);
                 const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
                 
+                const statusColor = {
+                    'agendado': 'border-yellow-500/30',
+                    'compareceu': 'border-green-500/50 bg-green-900/20',
+                    'faltou': 'border-red-500/50 bg-red-900/20'
+                };
+                
+                const statusIcon = {
+                    'agendado': 'fas fa-clock text-yellow-400',
+                    'compareceu': 'fas fa-check-circle text-green-400',
+                    'faltou': 'fas fa-times-circle text-red-400'
+                };
+                
+                const statusText = {
+                    'agendado': 'Agendado',
+                    'compareceu': 'Compareceu',
+                    'faltou': 'Faltou'
+                };
+                
                 const div = document.createElement('div');
-                div.className = 'glass-effect p-6 rounded-xl border border-yellow-500/30 hover-scale';
+                div.className = `glass-effect p-6 rounded-xl border ${statusColor[agendamento.status]} hover-scale`;
                 div.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-1" onclick="openModalAgendamento('${agendamento.id}')">
-                            <div class="flex items-center mb-3">
-                                <i class="fas fa-clock text-yellow-400 mr-2"></i>
-                                <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-yellow-400 mr-2"></i>
+                                    <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="${statusIcon[agendamento.status]} mr-2"></i>
+                                    <span class="text-sm font-semibold ${agendamento.status === 'compareceu' ? 'text-green-400' : agendamento.status === 'faltou' ? 'text-red-400' : 'text-yellow-400'}">${statusText[agendamento.status]}</span>
+                                </div>
                             </div>
                             <div class="space-y-2">
                                 <p class="text-white flex items-center">
@@ -1664,9 +2241,27 @@
                                 </p>
                             </div>
                         </div>
-                        <button onclick="deleteAgendamento('${agendamento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="flex flex-col space-y-2 ml-4">
+                            ${agendamento.status === 'agendado' ? `
+                                <button onclick="marcarComparecimento('${agendamento.id}')" class="btn-primary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-check mr-1"></i>Compareceu
+                                </button>
+                                <button onclick="marcarFalta('${agendamento.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Faltou
+                                </button>
+                            ` : agendamento.status === 'compareceu' ? `
+                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-undo mr-1"></i>Desfazer
+                                </button>
+                            ` : `
+                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-undo mr-1"></i>Desfazer
+                                </button>
+                            `}
+                            <button onclick="deleteAgendamento('${agendamento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1694,7 +2289,7 @@
                 date.setDate(startDate.getDate() + i);
                 
                 const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day glass-effect p-4 rounded-xl text-center cursor-pointer border border-yellow-500/20';
+                dayElement.className = 'calendar-day glass-effect p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl text-center cursor-pointer border border-yellow-500/20 min-h-8 sm:min-h-12 md:min-h-16 flex flex-col justify-center items-center';
                 
                 const dateStr = date.toISOString().split('T')[0];
                 const dayAppointments = agendamentos.filter(a => a.data === dateStr);
@@ -1711,8 +2306,8 @@
                 }
                 
                 dayElement.innerHTML = `
-                    <div class="font-bold text-lg">${date.getDate()}</div>
-                    ${hasAppointments ? `<div class="text-xs mt-1 text-yellow-400">${dayAppointments.length} agend.</div>` : ''}
+                    <div class="font-bold text-xs sm:text-sm md:text-lg">${date.getDate()}</div>
+                    ${hasAppointments ? `<div class="text-xs mt-1 text-yellow-400 hidden sm:block">${dayAppointments.length} agend.</div>` : ''}
                 `;
                 
                 dayElement.addEventListener('click', () => selectDate(dateStr));
@@ -1746,14 +2341,38 @@
                 const cliente = clientes.find(c => c.id == agendamento.clienteId);
                 const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
                 
+                const statusColor = {
+                    'agendado': 'border-yellow-500/30',
+                    'compareceu': 'border-green-500/50 bg-green-900/20',
+                    'faltou': 'border-red-500/50 bg-red-900/20'
+                };
+                
+                const statusIcon = {
+                    'agendado': 'fas fa-clock text-yellow-400',
+                    'compareceu': 'fas fa-check-circle text-green-400',
+                    'faltou': 'fas fa-times-circle text-red-400'
+                };
+                
+                const statusText = {
+                    'agendado': 'Agendado',
+                    'compareceu': 'Compareceu',
+                    'faltou': 'Faltou'
+                };
+                
                 const div = document.createElement('div');
-                div.className = 'glass-effect p-6 rounded-xl border border-yellow-500/30 hover-scale';
+                div.className = `glass-effect p-6 rounded-xl border ${statusColor[agendamento.status]} hover-scale`;
                 div.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-1" onclick="openModalAgendamento('${agendamento.id}')">
-                            <div class="flex items-center mb-3">
-                                <i class="fas fa-clock text-yellow-400 mr-2"></i>
-                                <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-yellow-400 mr-2"></i>
+                                    <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="${statusIcon[agendamento.status]} mr-2"></i>
+                                    <span class="text-sm font-semibold ${agendamento.status === 'compareceu' ? 'text-green-400' : agendamento.status === 'faltou' ? 'text-red-400' : 'text-yellow-400'}">${statusText[agendamento.status]}</span>
+                                </div>
                             </div>
                             <div class="space-y-2">
                                 <p class="text-white flex items-center">
@@ -1773,6 +2392,27 @@
                                     ${agendamento.pagamento}
                                 </p>
                             </div>
+                        </div>
+                        <div class="flex flex-col space-y-2 ml-4">
+                            ${agendamento.status === 'agendado' ? `
+                                <button onclick="marcarComparecimento('${agendamento.id}')" class="btn-primary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-check mr-1"></i>Compareceu
+                                </button>
+                                <button onclick="marcarFalta('${agendamento.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Faltou
+                                </button>
+                            ` : agendamento.status === 'compareceu' ? `
+                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-undo mr-1"></i>Desfazer
+                                </button>
+                            ` : `
+                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
+                                    <i class="fas fa-undo mr-1"></i>Desfazer
+                                </button>
+                            `}
+                            <button onclick="deleteAgendamento('${agendamento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1794,8 +2434,7 @@
         async function deleteCliente(id) {
             if (confirm('Tem certeza que deseja excluir este cliente?')) {
                 try {
-                    const { doc, deleteDoc } = window.firebaseUtils;
-                    await deleteDoc(doc(window.firebaseDB, 'clientes', id));
+                    await window.firebaseDB.collection('clientes').doc(id).delete();
                     showNotification('Cliente excluído com sucesso!', 'success');
                 } catch (error) {
                     console.error('Erro ao excluir cliente:', error);
@@ -1807,8 +2446,7 @@
         async function deleteProcedimento(id) {
             if (confirm('Tem certeza que deseja excluir este procedimento?')) {
                 try {
-                    const { doc, deleteDoc } = window.firebaseUtils;
-                    await deleteDoc(doc(window.firebaseDB, 'procedimentos', id));
+                    await window.firebaseDB.collection('procedimentos').doc(id).delete();
                     showNotification('Procedimento excluído com sucesso!', 'success');
                 } catch (error) {
                     console.error('Erro ao excluir procedimento:', error);
@@ -1820,8 +2458,7 @@
         async function deleteAgendamento(id) {
             if (confirm('Tem certeza que deseja excluir este agendamento?')) {
                 try {
-                    const { doc, deleteDoc } = window.firebaseUtils;
-                    await deleteDoc(doc(window.firebaseDB, 'agendamentos', id));
+                    await window.firebaseDB.collection('agendamentos').doc(id).delete();
                     showNotification('Agendamento excluído com sucesso!', 'success');
                 } catch (error) {
                     console.error('Erro ao excluir agendamento:', error);
@@ -1908,27 +2545,234 @@
                 setTimeout(() => alert.remove(), 300);
             }
         }
-        
-        // Notificações
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 p-6 rounded-xl shadow-2xl ${
-                type === 'success' ? 'bg-green-600' : 'bg-red-600'
-            } text-white font-bold slide-down flex items-center`;
+
+        // Funções de Relatórios
+        function updateRelatorios() {
+            // Atualizar cards de estatísticas
+            document.getElementById('total-clientes').textContent = clientes.length;
             
-            const icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            notification.innerHTML = `
-                <i class="${icon} mr-3 text-xl"></i>
-                <span>${message}</span>
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+            
+            const agendamentosMes = agendamentos.filter(a => {
+                const dataAgendamento = new Date(a.data);
+                return dataAgendamento.getMonth() === mesAtual && dataAgendamento.getFullYear() === anoAtual;
+            });
+            
+            document.getElementById('agendamentos-mes').textContent = agendamentosMes.length;
+            
+            const compareceram = agendamentos.filter(a => a.status === 'compareceu').length;
+            const faltaram = agendamentos.filter(a => a.status === 'faltou').length;
+            
+            document.getElementById('compareceram').textContent = compareceram;
+            document.getElementById('faltaram').textContent = faltaram;
+            
+            // Calcular receitas
+            let receitaTotal = 0;
+            let receitaRealizada = 0;
+            let receitaPerdida = 0;
+            
+            agendamentosMes.forEach(agendamento => {
+                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                if (procedimento) {
+                    receitaTotal += procedimento.valor;
+                    if (agendamento.status === 'compareceu') {
+                        receitaRealizada += procedimento.valor;
+                    } else if (agendamento.status === 'faltou') {
+                        receitaPerdida += procedimento.valor;
+                    }
+                }
+            });
+            
+            document.getElementById('receita-total').textContent = `R$ ${receitaTotal.toFixed(2)}`;
+            document.getElementById('receita-realizada').textContent = `R$ ${receitaRealizada.toFixed(2)}`;
+            document.getElementById('receita-perdida').textContent = `R$ ${receitaPerdida.toFixed(2)}`;
+        }
+
+        function gerarRelatorio() {
+            const agendamentosFiltrados = getFilteredAppointments();
+            
+            // Exibir relatório
+            const container = document.getElementById('relatorio-detalhado');
+            container.innerHTML = '';
+            
+            if (agendamentosFiltrados.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum agendamento encontrado com os filtros selecionados</p>';
+                return;
+            }
+            
+            // Adicionar resumo do relatório
+            const resumoDiv = document.createElement('div');
+            resumoDiv.className = 'glass-effect p-6 rounded-xl border border-yellow-500/30 mb-6';
+            
+            let totalAgendamentos = agendamentosFiltrados.length;
+            let totalCompareceram = agendamentosFiltrados.filter(a => a.status === 'compareceu').length;
+            let totalFaltaram = agendamentosFiltrados.filter(a => a.status === 'faltou').length;
+            let totalPendentes = agendamentosFiltrados.filter(a => a.status === 'agendado').length;
+            
+            let receitaTotal = 0;
+            let receitaRealizada = 0;
+            
+            agendamentosFiltrados.forEach(agendamento => {
+                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                if (procedimento) {
+                    receitaTotal += procedimento.valor;
+                    if (agendamento.status === 'compareceu') {
+                        receitaRealizada += procedimento.valor;
+                    }
+                }
+            });
+            
+            resumoDiv.innerHTML = `
+                <h3 class="text-xl font-bold gold-text mb-4">Resumo do Relatório</h3>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-white">${totalAgendamentos}</p>
+                        <p class="text-yellow-300">Total</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-green-400">${totalCompareceram}</p>
+                        <p class="text-yellow-300">Compareceram</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-red-400">${totalFaltaram}</p>
+                        <p class="text-yellow-300">Faltaram</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-yellow-400">${totalPendentes}</p>
+                        <p class="text-yellow-300">Pendentes</p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-yellow-500/30">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-green-400">R$ ${receitaRealizada.toFixed(2)}</p>
+                        <p class="text-yellow-300">Receita Realizada</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-blue-400">R$ ${receitaTotal.toFixed(2)}</p>
+                        <p class="text-yellow-300">Receita Total</p>
+                    </div>
+                </div>
             `;
             
-            document.body.appendChild(notification);
+            container.appendChild(resumoDiv);
             
-            setTimeout(() => {
-                notification.style.animation = 'slideUp 0.3s ease-out reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            // Adicionar título da lista
+            const tituloDiv = document.createElement('div');
+            tituloDiv.innerHTML = '<h3 class="text-xl font-bold gold-text mb-4">Detalhamento dos Agendamentos</h3>';
+            container.appendChild(tituloDiv);
+            
+            agendamentosFiltrados.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+            
+            agendamentosFiltrados.forEach(agendamento => {
+                const cliente = clientes.find(c => c.id === agendamento.clienteId);
+                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
+                
+                const statusColor = {
+                    'agendado': 'text-yellow-400',
+                    'compareceu': 'text-green-400',
+                    'faltou': 'text-red-400'
+                };
+                
+                const statusIcon = {
+                    'agendado': 'fas fa-clock',
+                    'compareceu': 'fas fa-check-circle',
+                    'faltou': 'fas fa-times-circle'
+                };
+                
+                const div = document.createElement('div');
+                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
+                div.innerHTML = `
+                    <div class="grid md:grid-cols-5 gap-4">
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Data/Hora</p>
+                            <p class="text-white">${new Date(agendamento.data).toLocaleDateString('pt-BR')} - ${agendamento.hora}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Cliente</p>
+                            <p class="text-white">${cliente?.nome || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Procedimento</p>
+                            <p class="text-white">${procedimento?.nome || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Status</p>
+                            <p class="${statusColor[agendamento.status] || 'text-gray-400'}">
+                                <i class="${statusIcon[agendamento.status] || 'fas fa-question'} mr-2"></i>
+                                ${agendamento.status === 'agendado' ? 'Agendado' : 
+                                  agendamento.status === 'compareceu' ? 'Compareceu' : 
+                                  agendamento.status === 'faltou' ? 'Faltou' : 'Indefinido'}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-yellow-300 font-semibold">Valor</p>
+                            <p class="text-green-400 font-bold">R$ ${procedimento?.valor.toFixed(2) || '0.00'}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            showNotification('Relatório gerado com sucesso!', 'success');
         }
+
+        // Funções de controle de status dos agendamentos
+        async function marcarComparecimento(agendamentoId) {
+            try {
+                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
+                    status: 'compareceu',
+                    updatedAt: new Date().toISOString()
+                });
+                showNotification('Cliente marcado como compareceu! ✅', 'success');
+            } catch (error) {
+                console.error('Erro ao marcar comparecimento:', error);
+                showNotification('Erro ao marcar comparecimento!', 'error');
+            }
+        }
+
+        async function marcarFalta(agendamentoId) {
+            try {
+                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
+                    status: 'faltou',
+                    updatedAt: new Date().toISOString()
+                });
+                showNotification('Cliente marcado como faltou! ❌', 'warning');
+            } catch (error) {
+                console.error('Erro ao marcar falta:', error);
+                showNotification('Erro ao marcar falta!', 'error');
+            }
+        }
+
+        async function voltarAgendado(agendamentoId) {
+            try {
+                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
+                    status: 'agendado',
+                    updatedAt: new Date().toISOString()
+                });
+                showNotification('Status voltou para agendado! 🔄', 'info');
+            } catch (error) {
+                console.error('Erro ao voltar status:', error);
+                showNotification('Erro ao alterar status!', 'error');
+            }
+        }
+
+        // Disponibilizar funções globalmente
+        window.showTab = showTab;
+        window.openModalAgendamento = openModalAgendamento;
+        window.closeModalAgendamento = closeModalAgendamento;
+        window.editCliente = editCliente;
+        window.deleteCliente = deleteCliente;
+        window.deleteProcedimento = deleteProcedimento;
+        window.deleteAgendamento = deleteAgendamento;
+        window.dismissAlert = dismissAlert;
+        window.previousMonth = previousMonth;
+        window.nextMonth = nextMonth;
+        window.gerarRelatorio = gerarRelatorio;
+        window.marcarComparecimento = marcarComparecimento;
+        window.marcarFalta = marcarFalta;
+        window.voltarAgendado = voltarAgendado;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98863f6d0503a429',t:'MTc1OTQyOTU4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98869a0397de128c',t:'MTc1OTQzMzI5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
