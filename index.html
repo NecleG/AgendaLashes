@@ -377,8 +377,7 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl">
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold gold-text mb-2">Lash Design Studio</h1>
-                <p class="text-yellow-200">Sistema de Agendamento</p>
+                <img src="https://imgur.com/T71ZiQd.png" alt="Lash Design Studio" class="h-32 w-auto mx-auto rounded-xl shadow-2xl" onerror="this.style.display='none';">
             </div>
             
             <!-- Formulário de Login -->
@@ -479,22 +478,8 @@
         <header class="custom-brown shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent"></div>
             <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 relative">
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 min-w-0">
-                        <h1 class="text-lg sm:text-2xl md:text-4xl font-bold gold-text truncate">
-                            Lash Design Studio
-                        </h1>
-                        <p class="text-yellow-200 mt-1 text-xs sm:text-sm md:text-lg font-light hidden sm:block">Sistema de Agendamento Profissional</p>
-                    </div>
-                    <div class="flex items-center space-x-2 sm:space-x-4">
-                        <div class="text-right hidden lg:block">
-                            <p class="text-yellow-300 font-semibold text-sm" id="user-name">Usuário</p>
-                            <p class="text-yellow-200 text-xs" id="user-email">email@exemplo.com</p>
-                        </div>
-                        <button onclick="logout()" class="btn-secondary px-2 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm">
-                            <i class="fas fa-sign-out-alt sm:mr-2"></i><span class="hidden sm:inline">Sair</span>
-                        </button>
-                    </div>
+                <div class="flex justify-center items-center">
+                    <img src="https://imgur.com/Lb9xn32.png" alt="Lash Design Studio Logo" class="h-16 sm:h-20 md:h-24 lg:h-28 w-auto rounded-xl shadow-2xl" onerror="this.style.display='none';">
                 </div>
             </div>
         </header>
@@ -1038,6 +1023,23 @@
             </div>
         </div>
         </main>
+        
+        <!-- Footer com botão de sair -->
+        <footer class="mt-12 pb-8">
+            <div class="container mx-auto px-4 text-center">
+                <div class="glass-effect rounded-xl p-6 inline-block">
+                    <div class="flex flex-col items-center space-y-4">
+                        <div class="text-center">
+                            <p class="text-yellow-300 font-semibold" id="user-name-footer">Usuário</p>
+                            <p class="text-yellow-200 text-sm" id="user-email-footer">email@exemplo.com</p>
+                        </div>
+                        <button onclick="logout()" class="btn-secondary px-6 py-3 rounded-xl font-bold">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Sair do Sistema
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Modal de Edição de Agendamento -->
@@ -1175,9 +1177,9 @@
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             
-            // Atualizar informações do usuário
-            document.getElementById('user-name').textContent = user.displayName || 'Usuário';
-            document.getElementById('user-email').textContent = user.email;
+            // Atualizar informações do usuário no footer
+            document.getElementById('user-name-footer').textContent = user.displayName || 'Usuário';
+            document.getElementById('user-email-footer').textContent = user.email;
             
             // Inicializar app
             updateCalendar();
@@ -2774,5 +2776,5 @@
         window.marcarFalta = marcarFalta;
         window.voltarAgendado = voltarAgendado;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98869a0397de128c',t:'MTc1OTQzMzI5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988bee78f5d6f18b',t:'MTc1OTQ4OTE4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
