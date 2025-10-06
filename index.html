@@ -518,24 +518,23 @@
     </div>
 
     <!-- Banner de Aniversários -->
-    <div id="birthday-banner" class="hidden fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 text-white shadow-2xl">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="text-3xl animate-bounce">🎉</div>
-                    <div>
-                        <h3 class="font-bold text-lg">Aniversariante(s) do Dia!</h3>
-                        <div id="birthday-list" class="text-sm opacity-90">
+    <div id="birthday-banner" class="hidden relative z-30 bg-gradient-to-r from-purple-800 via-pink-700 to-purple-800 text-white shadow-lg border-b border-purple-500/30">
+        <div class="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+            <div class="flex items-start justify-between">
+                <div class="flex items-start space-x-2 sm:space-x-4 flex-1 min-w-0">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-birthday-cake text-yellow-300 text-sm sm:text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm sm:text-base text-yellow-200 mb-1">Aniversariantes</h3>
+                        <div id="birthday-list" class="text-xs sm:text-sm text-white/90 leading-relaxed">
                             <!-- Lista de aniversariantes aparecerá aqui -->
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="text-2xl">🎂</div>
-                    <button onclick="closeBirthdayBanner()" class="text-white hover:text-gray-200 text-xl p-2">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <button onclick="closeBirthdayBanner()" class="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-1.5 sm:p-2 transition-all duration-200 flex-shrink-0 ml-2">
+                    <i class="fas fa-times text-xs sm:text-sm"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -2793,56 +2792,97 @@
             if (birthdayBannerClosed) return;
             
             const hoje = new Date();
-            const diaHoje = hoje.getDate();
-            const mesHoje = hoje.getMonth() + 1; // getMonth() retorna 0-11
+            const amanha = new Date();
+            amanha.setDate(hoje.getDate() + 1);
             
-            const aniversariantes = clientes.filter(cliente => {
+            // Aniversariantes de hoje
+            const aniversariantesHoje = clientes.filter(cliente => {
                 if (!cliente.nascimento) return false;
                 
-                const nascimento = new Date(cliente.nascimento);
-                const diaNascimento = nascimento.getDate();
-                const mesNascimento = nascimento.getMonth() + 1;
+                // Usar apenas a string da data para evitar problemas de timezone
+                const nascimentoStr = cliente.nascimento; // formato: "YYYY-MM-DD"
+                const [ano, mes, dia] = nascimentoStr.split('-').map(Number);
                 
-                return diaNascimento === diaHoje && mesNascimento === mesHoje;
+                return dia === hoje.getDate() && 
+                       (mes - 1) === hoje.getMonth(); // mes-1 porque getMonth() retorna 0-11
             });
             
-            if (aniversariantes.length > 0) {
-                showBirthdayBanner(aniversariantes);
+            // Aniversariantes de amanhã
+            const aniversariantesAmanha = clientes.filter(cliente => {
+                if (!cliente.nascimento) return false;
+                
+                // Usar apenas a string da data para evitar problemas de timezone
+                const nascimentoStr = cliente.nascimento; // formato: "YYYY-MM-DD"
+                const [ano, mes, dia] = nascimentoStr.split('-').map(Number);
+                
+                return dia === amanha.getDate() && 
+                       (mes - 1) === amanha.getMonth(); // mes-1 porque getMonth() retorna 0-11
+            });
+            
+            if (aniversariantesHoje.length > 0 || aniversariantesAmanha.length > 0) {
+                showBirthdayBanner(aniversariantesHoje, aniversariantesAmanha);
             } else {
                 hideBirthdayBanner();
             }
         }
         
-        function showBirthdayBanner(aniversariantes) {
+        function showBirthdayBanner(aniversariantesHoje, aniversariantesAmanha) {
             const banner = document.getElementById('birthday-banner');
             const list = document.getElementById('birthday-list');
             
             list.innerHTML = '';
             
-            aniversariantes.forEach((cliente, index) => {
-                const hoje = new Date();
-                const nascimento = new Date(cliente.nascimento);
-                const idade = hoje.getFullYear() - nascimento.getFullYear();
+            // Mostrar aniversariantes de hoje
+            if (aniversariantesHoje.length > 0) {
+                const divHoje = document.createElement('div');
+                divHoje.className = 'mb-1';
+                divHoje.innerHTML = '<div class="font-semibold text-yellow-200 mb-1 text-xs sm:text-sm">Hoje:</div>';
+                list.appendChild(divHoje);
                 
-                const div = document.createElement('div');
-                div.className = 'flex items-center space-x-2 mb-1';
-                div.innerHTML = `
-                    <span>🎂</span>
-                    <span><strong>${cliente.nome}</strong> está fazendo ${idade} anos hoje!</span>
-                `;
-                list.appendChild(div);
-            });
+                aniversariantesHoje.forEach(cliente => {
+                    const hoje = new Date();
+                    const [anoNasc] = cliente.nascimento.split('-').map(Number);
+                    const idade = hoje.getFullYear() - anoNasc;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'ml-2 sm:ml-3 mb-1';
+                    div.innerHTML = `<span class="text-xs sm:text-sm"><strong>${cliente.nome}</strong> - ${idade} anos</span>`;
+                    list.appendChild(div);
+                });
+            }
+            
+            // Mostrar aniversariantes de amanhã
+            if (aniversariantesAmanha.length > 0) {
+                if (aniversariantesHoje.length > 0) {
+                    const separador = document.createElement('div');
+                    separador.className = 'my-1 sm:my-2 border-t border-white/20 pt-1';
+                    list.appendChild(separador);
+                }
+                
+                const divAmanha = document.createElement('div');
+                divAmanha.className = 'mb-1';
+                divAmanha.innerHTML = '<div class="font-semibold text-yellow-200/80 mb-1 text-xs sm:text-sm">Amanhã:</div>';
+                list.appendChild(divAmanha);
+                
+                aniversariantesAmanha.forEach(cliente => {
+                    const amanha = new Date();
+                    amanha.setDate(amanha.getDate() + 1);
+                    const [anoNasc] = cliente.nascimento.split('-').map(Number);
+                    const idade = amanha.getFullYear() - anoNasc;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'ml-2 sm:ml-3 mb-1 opacity-80';
+                    div.innerHTML = `<span class="text-xs sm:text-sm"><strong>${cliente.nome}</strong> - ${idade} anos</span>`;
+                    list.appendChild(div);
+                });
+            }
             
             banner.classList.remove('hidden');
-            
-            // Ajustar padding do body para compensar o banner
-            document.body.style.paddingTop = '80px';
         }
         
         function hideBirthdayBanner() {
             const banner = document.getElementById('birthday-banner');
             banner.classList.add('hidden');
-            document.body.style.paddingTop = '0';
         }
         
         function closeBirthdayBanner() {
@@ -2878,5 +2918,5 @@
         window.voltarAgendado = voltarAgendado;
         window.closeBirthdayBanner = closeBirthdayBanner;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a7d9f9a1604ae8',t:'MTc1OTc4MTk0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a7ecded2ec4ae8',t:'MTc1OTc4MjcxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
