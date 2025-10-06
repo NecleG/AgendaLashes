@@ -517,6 +517,29 @@
         <!-- Notificações de agendamento aparecerão aqui -->
     </div>
 
+    <!-- Banner de Aniversários -->
+    <div id="birthday-banner" class="hidden fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 text-white shadow-2xl">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-3xl animate-bounce">🎉</div>
+                    <div>
+                        <h3 class="font-bold text-lg">Aniversariante(s) do Dia!</h3>
+                        <div id="birthday-list" class="text-sm opacity-90">
+                            <!-- Lista de aniversariantes aparecerá aqui -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="text-2xl">🎂</div>
+                    <button onclick="closeBirthdayBanner()" class="text-white hover:text-gray-200 text-xl p-2">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         
@@ -1186,6 +1209,7 @@
             updateAgendamentosHoje();
             checkUpcomingAppointments();
             updateRelatorios();
+            checkBirthdays();
             
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
@@ -1630,6 +1654,7 @@
                     updateClientesList();
                     updateClienteSelect();
                     updateRelatorios();
+                    checkBirthdays();
                 });
             
             // Listener para procedimentos
@@ -2472,6 +2497,9 @@
         // Sistema de Notificações de Agendamento
         let notificationsShown = new Set();
         
+        // Sistema de Aniversários
+        let birthdayBannerClosed = false;
+        
         function checkUpcomingAppointments() {
             const now = new Date();
             const hoje = now.toISOString().split('T')[0];
@@ -2760,6 +2788,79 @@
             }
         }
 
+        // Sistema de Aniversários
+        function checkBirthdays() {
+            if (birthdayBannerClosed) return;
+            
+            const hoje = new Date();
+            const diaHoje = hoje.getDate();
+            const mesHoje = hoje.getMonth() + 1; // getMonth() retorna 0-11
+            
+            const aniversariantes = clientes.filter(cliente => {
+                if (!cliente.nascimento) return false;
+                
+                const nascimento = new Date(cliente.nascimento);
+                const diaNascimento = nascimento.getDate();
+                const mesNascimento = nascimento.getMonth() + 1;
+                
+                return diaNascimento === diaHoje && mesNascimento === mesHoje;
+            });
+            
+            if (aniversariantes.length > 0) {
+                showBirthdayBanner(aniversariantes);
+            } else {
+                hideBirthdayBanner();
+            }
+        }
+        
+        function showBirthdayBanner(aniversariantes) {
+            const banner = document.getElementById('birthday-banner');
+            const list = document.getElementById('birthday-list');
+            
+            list.innerHTML = '';
+            
+            aniversariantes.forEach((cliente, index) => {
+                const hoje = new Date();
+                const nascimento = new Date(cliente.nascimento);
+                const idade = hoje.getFullYear() - nascimento.getFullYear();
+                
+                const div = document.createElement('div');
+                div.className = 'flex items-center space-x-2 mb-1';
+                div.innerHTML = `
+                    <span>🎂</span>
+                    <span><strong>${cliente.nome}</strong> está fazendo ${idade} anos hoje!</span>
+                `;
+                list.appendChild(div);
+            });
+            
+            banner.classList.remove('hidden');
+            
+            // Ajustar padding do body para compensar o banner
+            document.body.style.paddingTop = '80px';
+        }
+        
+        function hideBirthdayBanner() {
+            const banner = document.getElementById('birthday-banner');
+            banner.classList.add('hidden');
+            document.body.style.paddingTop = '0';
+        }
+        
+        function closeBirthdayBanner() {
+            birthdayBannerClosed = true;
+            hideBirthdayBanner();
+            
+            // Resetar no próximo dia
+            const amanha = new Date();
+            amanha.setDate(amanha.getDate() + 1);
+            amanha.setHours(0, 0, 0, 0);
+            
+            const tempoAteAmanha = amanha.getTime() - new Date().getTime();
+            setTimeout(() => {
+                birthdayBannerClosed = false;
+                checkBirthdays();
+            }, tempoAteAmanha);
+        }
+
         // Disponibilizar funções globalmente
         window.showTab = showTab;
         window.openModalAgendamento = openModalAgendamento;
@@ -2775,6 +2876,7 @@
         window.marcarComparecimento = marcarComparecimento;
         window.marcarFalta = marcarFalta;
         window.voltarAgendado = voltarAgendado;
+        window.closeBirthdayBanner = closeBirthdayBanner;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988bee78f5d6f18b',t:'MTc1OTQ4OTE4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a7d9f9a1604ae8',t:'MTc1OTc4MTk0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
