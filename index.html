@@ -1,2922 +1,342 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lash Design Studio - Agenda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <script>
-        console.log('Carregando Firebase...');
-        
-        // Suas configurações do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBUF8USZ4eHJPqM6SBiHDGhOmvYpZmVSnk",
-            authDomain: "agenda-lashes-f3766.firebaseapp.com",
-            projectId: "agenda-lashes-f3766",
-            storageBucket: "agenda-lashes-f3766.firebasestorage.app",
-            messagingSenderId: "321642421475",
-            appId: "1:321642421475:web:cea7c933f29ff5bea1b9d6",
-            measurementId: "G-62GWTEQG3W"
-        };
-        
-        // Inicializar Firebase imediatamente
-        try {
-            console.log('Inicializando Firebase...');
-            
-            // Inicializar Firebase
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            
-            // Obter referências
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-            const googleProvider = new firebase.auth.GoogleAuthProvider();
-            
-            console.log('Firebase inicializado com sucesso!');
-            console.log('Auth:', auth);
-            console.log('DB:', db);
-            
-            // Disponibilizar globalmente
-            window.firebaseAuth = auth;
-            window.firebaseDB = db;
-            window.googleProvider = googleProvider;
-            window.firebaseReady = true;
-            
-            console.log('Firebase disponível globalmente!');
-            
-        } catch (error) {
-            console.error('Erro ao inicializar Firebase:', error);
-            window.firebaseError = error;
-        }
-    </script>
-    <style>
-        body {
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        
-        .custom-brown { background-color: #4E1E14; }
-        .custom-brown-light { background-color: #6B2A1F; }
-        .text-custom-brown { color: #4E1E14; }
-        .border-custom-brown { border-color: #4E1E14; }
-        
-        .gold-gradient {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-        }
-        
-        .gold-text {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        .slide-up {
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        .slide-down {
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .hover-scale {
-            transition: all 0.3s ease;
-        }
-        
-        .hover-scale:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
-        }
-        
-        .calendar-day {
-            transition: all 0.2s ease;
-            position: relative;
-            min-height: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .calendar-day:hover {
-            background-color: #FFD700;
-            color: #000;
-            transform: scale(1.05);
-        }
-        
-        .has-appointment {
-            background: linear-gradient(135deg, #4E1E14, #6B2A1F);
-            color: white;
-        }
-        
-        .has-appointment::after {
-            content: '';
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 8px;
-            height: 8px;
-            background: #FFD700;
-            border-radius: 50%;
-        }
-        
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-        }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.3);
-            border-color: #FFD700;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            color: #FFD700;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: #FFD700;
-        }
-        
-        .input-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .input-field:focus {
-            border-color: #FFD700;
-            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .input-field option {
-            background: #1a1a1a;
-            color: #ffffff;
-            padding: 8px;
-        }
-        
-        .input-field option:hover {
-            background: #333333;
-        }
-        
-        .notification-alert {
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Complete Mobile Responsiveness */
-        @media (max-width: 640px) {
-            .container {
-                padding-left: 12px !important;
-                padding-right: 12px !important;
-            }
-            
-            .glass-effect {
-                padding: 16px !important;
-                margin: 8px 0 !important;
-            }
-            
-            .calendar-day {
-                min-height: 40px !important;
-                padding: 8px 4px !important;
-                font-size: 14px !important;
-            }
-            
-            .calendar-day:hover {
-                transform: scale(1.02) !important;
-            }
-            
-            .has-appointment::after {
-                width: 6px !important;
-                height: 6px !important;
-                top: 4px !important;
-                right: 4px !important;
-            }
-            
-            .btn-primary, .btn-secondary {
-                font-size: 14px !important;
-                padding: 12px 16px !important;
-                white-space: nowrap;
-            }
-            
-            .input-field {
-                font-size: 16px !important;
-                padding: 14px !important;
-            }
-            
-            .modal-backdrop .glass-effect {
-                margin: 16px !important;
-                max-height: 85vh !important;
-                overflow-y: auto !important;
-                max-width: calc(100vw - 32px) !important;
-            }
-            
-            h1 {
-                font-size: 20px !important;
-            }
-            
-            h2 {
-                font-size: 20px !important;
-            }
-            
-            h3 {
-                font-size: 18px !important;
-            }
-            
-            .nav-btn {
-                padding: 12px 8px !important;
-                font-size: 12px !important;
-                min-height: 70px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            
-            .nav-btn i {
-                font-size: 18px !important;
-                margin-bottom: 4px !important;
-                margin-right: 0 !important;
-            }
-            
-            .nav-btn span {
-                font-size: 11px !important;
-                line-height: 1.2 !important;
-                text-align: center !important;
-            }
-            
-            .grid {
-                gap: 8px !important;
-            }
-            
-            .space-y-4 > * + * {
-                margin-top: 12px !important;
-            }
-            
-            .space-y-6 > * + * {
-                margin-top: 16px !important;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding-left: 8px !important;
-                padding-right: 8px !important;
-            }
-            
-            .glass-effect {
-                padding: 12px !important;
-                margin: 4px 0 !important;
-            }
-            
-            .calendar-day {
-                min-height: 35px !important;
-                font-size: 12px !important;
-                padding: 6px 2px !important;
-            }
-            
-            .nav-btn {
-                padding: 10px 4px !important;
-                font-size: 10px !important;
-                min-height: 65px !important;
-            }
-            
-            .nav-btn i {
-                font-size: 16px !important;
-            }
-            
-            .nav-btn span {
-                font-size: 10px !important;
-            }
-            
-            .modal-backdrop .glass-effect {
-                margin: 8px !important;
-                max-width: calc(100vw - 16px) !important;
-            }
-            
-            h1 {
-                font-size: 18px !important;
-            }
-            
-            h2 {
-                font-size: 18px !important;
-            }
-            
-            .btn-primary, .btn-secondary {
-                font-size: 12px !important;
-                padding: 10px 12px !important;
-            }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Proposta comercial — Gabriel Assis</title>
+<meta name="theme-color" content="#0B0B0B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--preto:#0B0B0B;--grafite:#1F1F1F;--bronze:#C9B89B;--creme:#EDE7D9;--cinza-quente:#A9A196;
+--serif:"Cormorant Garamond",Georgia,serif;--sans:"Hanken Grotesk",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--preto);color:var(--creme);font:400 17px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:3px}
+.wrap{width:min(1080px,100% - 40px);margin-inline:auto}
+section{padding:96px 0;border-top:1px solid var(--grafite)}
+h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.1}
+h1{font-size:clamp(44px,8vw,92px);letter-spacing:-.01em}
+h2{font-size:clamp(32px,5vw,52px);margin-bottom:24px;max-width:18ch}
+h3{font-size:28px;margin-bottom:10px}
+p{max-width:62ch;color:var(--cinza-quente)}
+p+p{margin-top:14px}
+.sub{color:var(--bronze);font-size:15px;margin-bottom:14px}
+.btn{display:inline-block;padding:14px 26px;border:1px solid var(--bronze);background:var(--bronze);color:var(--preto);font:600 16px var(--sans);text-decoration:none;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:transparent;color:var(--bronze)}
+.btn.ghost{background:transparent;color:var(--bronze)}
+.btn.ghost:hover{background:var(--bronze);color:var(--preto)}
+/* topo */
+header{position:sticky;top:0;z-index:20;background:rgba(11,11,11,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--grafite);padding-top:env(safe-area-inset-top,0)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font:500 24px var(--serif);text-decoration:none}
+nav{display:flex;gap:22px;font-size:15px}
+nav a{text-decoration:none;color:var(--cinza-quente)}nav a:hover{color:var(--creme)}
+header .btn{padding:9px 16px;font-size:14px}
+@media(max-width:860px){nav{display:none}}
+/* hero */
+.hero{position:relative;min-height:88vh;display:flex;align-items:flex-end;padding:0;border:0;overflow:hidden}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.42) saturate(.8);transform:scale(1.06);animation:zoom 14s ease-out forwards}
+@keyframes zoom{to{transform:scale(1)}}
+.hero .wrap{position:relative;padding:120px 0 72px}
+.hero p{font-size:20px;color:var(--creme);margin:22px 0 32px}
+.hero .acts{display:flex;gap:14px;flex-wrap:wrap}
+/* duas colunas */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+@media(max-width:800px){.cols{grid-template-columns:1fr}section{padding:72px 0}}
+/* abas das marcas */
+.tabs{display:flex;gap:8px;margin:32px 0 28px;flex-wrap:wrap}
+.tab{background:none;border:1px solid var(--grafite);color:var(--cinza-quente);padding:12px 22px;font:500 16px var(--sans);cursor:pointer;transition:.2s}
+.tab[aria-selected=true]{border-color:var(--bronze);color:var(--preto);background:var(--bronze)}
+.panel{display:grid;grid-template-columns:5fr 6fr;gap:44px;align-items:start;animation:troca .45s ease}
+.panel[hidden]{display:none}
+@keyframes troca{from{opacity:0;transform:translateY(10px)}}
+.panel img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.panel ul{margin:16px 0;padding-left:20px;color:var(--cinza-quente)}
+.panel li{margin-bottom:6px}
+.dir{border-left:2px solid var(--bronze);padding-left:16px;color:var(--creme);margin-top:18px}
+.panel a.ig{color:var(--bronze);font-size:15px;display:inline-block;margin-top:14px}
+@media(max-width:800px){.panel{grid-template-columns:1fr}}
+.nota{margin-top:36px;padding:20px 24px;background:var(--grafite);max-width:none}
+/* entregas */
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grafite);margin:36px 0}
+.num{background:var(--preto);padding:34px 26px}
+.num b{display:block;font:500 clamp(64px,10vw,104px)/1 var(--serif);color:var(--bronze)}
+.num span{color:var(--creme)}
+@media(max-width:700px){.nums{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}
+.chips span{border:1px solid var(--bronze);color:var(--bronze);padding:7px 16px;font-size:15px}
+/* processo */
+.steps{list-style:none;padding:0;margin-top:32px;counter-reset:s;max-width:640px}
+.steps li{counter-increment:s;display:flex;gap:22px;padding:18px 0;border-bottom:1px solid var(--grafite);color:var(--creme)}
+.steps li::before{content:counter(s);font:500 30px/1 var(--serif);color:var(--bronze);width:34px;flex:none}
+/* brindes */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
+.card{background:var(--grafite);padding:34px}
+.card p{font-size:16px}
+@media(max-width:800px){.cards{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--bronze);margin:6px 0 18px}
+.seg button{background:none;border:0;color:var(--bronze);padding:9px 18px;font:500 15px var(--sans);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--bronze);color:var(--preto)}
+/* investimento */
+.preco{background:var(--grafite);padding:44px;margin-top:32px;max-width:720px}
+.valor{font:500 clamp(52px,9vw,84px)/1 var(--serif);color:var(--bronze);margin:8px 0}
+.preco small{color:var(--cinza-quente);display:block}
+/* contato */
+.fim{text-align:left}
+.fim .acts{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+footer{padding:32px 0 calc(32px + env(safe-area-inset-bottom,0));border-top:1px solid var(--grafite);color:var(--cinza-quente);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.zap{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0));z-index:30;background:var(--bronze);color:var(--preto);padding:13px 20px;font:600 15px var(--sans);text-decoration:none;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+/* resumo para PDF */
+#resumo{display:none}
+@media print{
+@page{size:A4;margin:16mm}
+body>*:not(#resumo){display:none!important}
+body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
+#resumo{display:block}
+#resumo h1{font-size:30pt;color:#0B0B0B}
+#resumo h2{font-size:15pt;max-width:none;margin:16px 0 6px;color:#0B0B0B;border-bottom:1px solid #C9B89B;padding-bottom:3px}
+#resumo p,#resumo li{color:#1F1F1F;max-width:none}
+#resumo ul{padding-left:18px}
+#resumo .pv{font:600 20pt var(--serif)}
+#resumo small{color:#555;display:block;margin-top:14px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
 </head>
-<body class="bg-black text-white min-h-screen">
-    <!-- Tela de Login -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl">
-            <div class="text-center mb-8">
-                <img src="https://imgur.com/T71ZiQd.png" alt="Lash Design Studio" class="h-32 w-auto mx-auto rounded-xl shadow-2xl" onerror="this.style.display='none';">
-            </div>
-            
-            <!-- Formulário de Login -->
-            <div id="login-form" class="space-y-6">
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-envelope mr-2"></i>Email
-                    </label>
-                    <input type="email" id="login-email" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="seu@email.com">
-                </div>
-                
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-lock mr-2"></i>Senha
-                    </label>
-                    <input type="password" id="login-password" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="••••••••">
-                </div>
-                
-                <button onclick="loginWithEmail()" class="w-full btn-primary py-3 rounded-xl font-bold">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Entrar
-                </button>
-                
-                <div class="text-center">
-                    <span class="text-gray-400">ou</span>
-                </div>
-                
-                <button onclick="loginWithGoogle()" class="w-full btn-secondary py-3 rounded-xl font-bold flex items-center justify-center">
-                    <i class="fab fa-google mr-2"></i>Entrar com Google
-                </button>
-                
-                <div class="text-center">
-                    <button onclick="showRegister()" class="text-yellow-400 hover:text-yellow-300 underline">
-                        Não tem conta? Cadastre-se
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Formulário de Cadastro -->
-            <div id="register-form" class="space-y-6 hidden">
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-user mr-2"></i>Nome Completo
-                    </label>
-                    <input type="text" id="register-name" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Seu nome completo">
-                </div>
-                
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-envelope mr-2"></i>Email
-                    </label>
-                    <input type="email" id="register-email" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="seu@email.com">
-                </div>
-                
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-lock mr-2"></i>Senha
-                    </label>
-                    <input type="password" id="register-password" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="••••••••">
-                </div>
-                
-                <div>
-                    <label class="block text-yellow-300 font-semibold mb-3">
-                        <i class="fas fa-lock mr-2"></i>Confirmar Senha
-                    </label>
-                    <input type="password" id="register-confirm" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="••••••••">
-                </div>
-                
-                <button onclick="registerWithEmail()" class="w-full btn-primary py-3 rounded-xl font-bold">
-                    <i class="fas fa-user-plus mr-2"></i>Criar Conta
-                </button>
-                
-                <div class="text-center">
-                    <span class="text-gray-400">ou</span>
-                </div>
-                
-                <button onclick="loginWithGoogle()" class="w-full btn-secondary py-3 rounded-xl font-bold flex items-center justify-center">
-                    <i class="fab fa-google mr-2"></i>Cadastrar com Google
-                </button>
-                
-                <div class="text-center">
-                    <button onclick="showLogin()" class="text-yellow-400 hover:text-yellow-300 underline">
-                        Já tem conta? Faça login
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Loading -->
-            <div id="auth-loading" class="text-center py-8 hidden">
-                <i class="fas fa-spinner fa-spin text-3xl gold-text"></i>
-                <p class="text-yellow-300 mt-4">Carregando...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- App Principal -->
-    <div id="main-app" class="hidden">
-        <!-- Header -->
-        <header class="custom-brown shadow-2xl relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent"></div>
-            <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 relative">
-                <div class="flex justify-center items-center">
-                    <img src="https://imgur.com/Lb9xn32.png" alt="Lash Design Studio Logo" class="h-16 sm:h-20 md:h-24 lg:h-28 w-auto rounded-xl shadow-2xl" onerror="this.style.display='none';">
-                </div>
-            </div>
-        </header>
-
-        <!-- Navigation -->
-        <nav class="glass-effect border-b border-yellow-500/30">
-            <div class="container mx-auto px-2 sm:px-4">
-                <div class="grid grid-cols-5 gap-1 py-3 sm:py-4 md:py-6">
-                    <button onclick="showTab('agenda')" class="nav-btn btn-primary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
-                        <i class="fas fa-calendar-alt text-sm mb-1 sm:mb-0 sm:mr-2"></i>
-                        <span class="text-xs">Agenda</span>
-                    </button>
-                    <button onclick="showTab('clientes')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
-                        <i class="fas fa-users text-sm mb-1 sm:mb-0 sm:mr-2"></i>
-                        <span class="text-xs">Clientes</span>
-                    </button>
-                    <button onclick="showTab('procedimentos')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
-                        <i class="fas fa-spa text-sm mb-1 sm:mb-0 sm:mr-2"></i>
-                        <span class="text-xs">Proc.</span>
-                    </button>
-                    <button onclick="showTab('calendario')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
-                        <i class="fas fa-calendar text-sm mb-1 sm:mb-0 sm:mr-2"></i>
-                        <span class="text-xs">Calendário</span>
-                    </button>
-                    <button onclick="showTab('relatorios')" class="nav-btn btn-secondary px-1 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base flex flex-col sm:flex-row items-center justify-center">
-                        <i class="fas fa-chart-bar text-sm mb-1 sm:mb-0 sm:mr-2"></i>
-                        <span class="text-xs">Relatórios</span>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-    <!-- Área de Notificações -->
-    <div id="notification-area" class="fixed top-20 right-4 z-50 space-y-4 max-w-md">
-        <!-- Notificações de agendamento aparecerão aqui -->
-    </div>
-
-    <!-- Banner de Aniversários -->
-    <div id="birthday-banner" class="hidden relative z-30 bg-gradient-to-r from-purple-800 via-pink-700 to-purple-800 text-white shadow-lg border-b border-purple-500/30">
-        <div class="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
-            <div class="flex items-start justify-between">
-                <div class="flex items-start space-x-2 sm:space-x-4 flex-1 min-w-0">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-birthday-cake text-yellow-300 text-sm sm:text-lg"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-sm sm:text-base text-yellow-200 mb-1">Aniversariantes</h3>
-                        <div id="birthday-list" class="text-xs sm:text-sm text-white/90 leading-relaxed">
-                            <!-- Lista de aniversariantes aparecerá aqui -->
-                        </div>
-                    </div>
-                </div>
-                <button onclick="closeBirthdayBanner()" class="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-1.5 sm:p-2 transition-all duration-200 flex-shrink-0 ml-2">
-                    <i class="fas fa-times text-xs sm:text-sm"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        
-        <!-- Agenda Tab -->
-        <div id="agenda-tab" class="tab-content fade-in">
-            <div class="glass-effect rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
-                <div class="flex items-center mb-6 sm:mb-8">
-                    <i class="fas fa-calendar-plus text-2xl sm:text-3xl gold-text mr-2 sm:mr-4"></i>
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold gold-text">Novo Agendamento</h2>
-                </div>
-                
-                <form id="agendamento-form" class="space-y-6">
-                    <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                        <div class="sm:col-span-2">
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-user mr-2"></i>Cliente *
-                            </label>
-                            <select id="cliente-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
-                                <option value="">Selecione um cliente</option>
-                            </select>
-                        </div>
-                        
-                        <div class="sm:col-span-2">
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-spa mr-2"></i>Procedimento *
-                            </label>
-                            <select id="procedimento-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
-                                <option value="">Selecione um procedimento</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-dollar-sign mr-2"></i>Valor
-                            </label>
-                            <input type="text" id="valor-display" readonly class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-yellow-400 font-bold text-sm sm:text-base">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-credit-card mr-2"></i>Pagamento *
-                            </label>
-                            <select id="pagamento-select" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
-                                <option value="">Selecione</option>
-                                <option value="dinheiro">Dinheiro</option>
-                                <option value="cartao">Cartão</option>
-                                <option value="pix">PIX</option>
-                                <option value="transferencia">Transferência</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-calendar mr-2"></i>Data *
-                            </label>
-                            <input type="date" id="data-agendamento" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center text-sm sm:text-base">
-                                <i class="fas fa-clock mr-2"></i>Horário *
-                            </label>
-                            <input type="time" id="hora-agendamento" required class="w-full input-field rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-white text-sm sm:text-base">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="w-full btn-primary py-4 rounded-xl text-lg font-bold">
-                        <i class="fas fa-plus mr-2"></i>Agendar Procedimento
-                    </button>
-                </form>
-                
-                <!-- Lista de Agendamentos -->
-                <div class="mt-12">
-                    <div class="flex items-center mb-6">
-                        <i class="fas fa-list text-2xl gold-text mr-3"></i>
-                        <h3 class="text-2xl font-bold gold-text">Agendamentos de Hoje</h3>
-                    </div>
-                    
-                    <!-- Filtro de Pesquisa Agendamentos -->
-                    <div class="mb-6">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-yellow-400"></i>
-                            <input type="text" id="filtro-agendamentos" placeholder="Pesquisar agendamento..." class="w-full input-field rounded-xl pl-12 pr-4 py-3 text-white">
-                        </div>
-                    </div>
-                    
-                    <div id="agendamentos-hoje" class="space-y-4">
-                        <!-- Agendamentos serão inseridos aqui -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Clientes Tab -->
-        <div id="clientes-tab" class="tab-content hidden">
-            <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Cadastro de Cliente -->
-                <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                    <div class="flex items-center mb-8">
-                        <i class="fas fa-user-plus text-3xl gold-text mr-4"></i>
-                        <h2 class="text-3xl font-bold gold-text" id="cliente-form-title">Cadastrar Cliente</h2>
-                    </div>
-                    
-                    <form id="cliente-form" class="space-y-6">
-                        <input type="hidden" id="cliente-id">
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-user mr-2"></i>Nome Completo *
-                                </label>
-                                <input type="text" id="cliente-nome" required class="w-full input-field rounded-xl px-4 py-3 text-white">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-birthday-cake mr-2"></i>Data de Nascimento *
-                                </label>
-                                <input type="date" id="cliente-nascimento" required class="w-full input-field rounded-xl px-4 py-3 text-white">
-                            </div>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-2"></i>Endereço
-                                </label>
-                                <input type="text" id="cliente-endereco" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Rua, número">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-building mr-2"></i>Bairro
-                                </label>
-                                <input type="text" id="cliente-bairro" class="w-full input-field rounded-xl px-4 py-3 text-white">
-                            </div>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-city mr-2"></i>Cidade *
-                                </label>
-                                <input type="text" id="cliente-cidade" required class="w-full input-field rounded-xl px-4 py-3 text-white">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-phone mr-2"></i>Telefone *
-                                </label>
-                                <input type="tel" id="cliente-telefone" required class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="(11) 99999-9999">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                <i class="fas fa-user-friends mr-2"></i>Se for menor de idade (Responsável)
-                            </label>
-                            <input type="text" id="cliente-responsavel" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Nome do responsável">
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-id-card mr-2"></i>RG
-                                </label>
-                                <input type="text" id="cliente-rg" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="00.000.000-0">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-id-badge mr-2"></i>CPF
-                                </label>
-                                <input type="text" id="cliente-cpf" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="000.000.000-00">
-                            </div>
-                        </div>
-                        
-                        <!-- Ficha Anamnese -->
-                        <div class="border-t border-yellow-500/30 pt-6 mt-8">
-                            <div class="flex items-center mb-6">
-                                <i class="fas fa-clipboard-list text-2xl gold-text mr-3"></i>
-                                <h3 class="text-xl font-bold gold-text">Ficha Anamnese</h3>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-yellow-300 mb-3">Possui alergia a esmalte/cosméticos/cianoacrilato?</label>
-                                    <select id="alergia" class="w-full input-field rounded-xl px-4 py-3 text-white mb-3">
-                                        <option value="">Selecione</option>
-                                        <option value="sim">Sim</option>
-                                        <option value="nao">Não</option>
-                                    </select>
-                                    <input type="text" id="alergia-especificar" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Se sim, especifique qual alergia...">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-yellow-300 mb-3">É gestante?</label>
-                                    <select id="gestante" class="w-full input-field rounded-xl px-4 py-3 text-white">
-                                        <option value="">Selecione</option>
-                                        <option value="sim">Sim</option>
-                                        <option value="nao">Não</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-yellow-300 mb-3">Alguma doença ocular?</label>
-                                    <select id="doenca-ocular" class="w-full input-field rounded-xl px-4 py-3 text-white mb-3">
-                                        <option value="">Selecione</option>
-                                        <option value="sim">Sim</option>
-                                        <option value="nao">Não</option>
-                                    </select>
-                                    <input type="text" id="doenca-especificar" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Se sim, especifique qual doença...">
-                                </div>
-                            </div>
-                            
-                            <div class="mt-6">
-                                <label class="block text-yellow-300 mb-3">Observações Gerais</label>
-                                <textarea id="observacoes" rows="3" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Informações adicionais..."></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="flex space-x-4">
-                            <button type="submit" class="flex-1 btn-primary py-4 rounded-xl text-lg font-bold">
-                                <i class="fas fa-save mr-2"></i><span id="cliente-btn-text">Cadastrar Cliente</span>
-                            </button>
-                            <button type="button" id="cancelar-edicao" class="btn-secondary px-6 py-4 rounded-xl font-bold hidden">
-                                <i class="fas fa-times mr-2"></i>Cancelar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Lista de Clientes -->
-                <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                    <div class="flex items-center mb-8">
-                        <i class="fas fa-users text-3xl gold-text mr-4"></i>
-                        <h2 class="text-3xl font-bold gold-text">Clientes Cadastrados</h2>
-                    </div>
-                    
-                    <!-- Filtro de Pesquisa -->
-                    <div class="mb-6">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-yellow-400"></i>
-                            <input type="text" id="filtro-clientes" placeholder="Pesquisar cliente..." class="w-full input-field rounded-xl pl-12 pr-4 py-3 text-white">
-                        </div>
-                    </div>
-                    
-                    <div id="lista-clientes" class="space-y-4 max-h-96 overflow-y-auto">
-                        <!-- Clientes serão inseridos aqui -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Procedimentos Tab -->
-        <div id="procedimentos-tab" class="tab-content hidden">
-            <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Cadastro de Procedimento -->
-                <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                    <div class="flex items-center mb-8">
-                        <i class="fas fa-spa text-3xl gold-text mr-4"></i>
-                        <h2 class="text-3xl font-bold gold-text">Cadastrar Procedimento</h2>
-                    </div>
-                    
-                    <form id="procedimento-form" class="space-y-6">
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                <i class="fas fa-tag mr-2"></i>Nome do Procedimento *
-                            </label>
-                            <input type="text" id="procedimento-nome" required class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Ex: Extensão Clássica">
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-dollar-sign mr-2"></i>Valor (R$) *
-                                </label>
-                                <input type="number" id="procedimento-valor" required step="0.01" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="0.00">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                    <i class="fas fa-clock mr-2"></i>Duração (minutos)
-                                </label>
-                                <input type="number" id="procedimento-duracao" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="120">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                                <i class="fas fa-align-left mr-2"></i>Descrição
-                            </label>
-                            <textarea id="procedimento-descricao" rows="4" class="w-full input-field rounded-xl px-4 py-3 text-white" placeholder="Descrição do procedimento..."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="w-full btn-primary py-4 rounded-xl text-lg font-bold">
-                            <i class="fas fa-plus mr-2"></i>Cadastrar Procedimento
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Lista de Procedimentos -->
-                <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                    <div class="flex items-center mb-8">
-                        <i class="fas fa-list-alt text-3xl gold-text mr-4"></i>
-                        <h2 class="text-3xl font-bold gold-text">Procedimentos Cadastrados</h2>
-                    </div>
-                    <div id="lista-procedimentos" class="space-y-4 max-h-96 overflow-y-auto">
-                        <!-- Procedimentos serão inseridos aqui -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Calendário Tab -->
-        <div id="calendario-tab" class="tab-content hidden">
-            <div class="glass-effect rounded-2xl p-8 shadow-2xl slide-up">
-                <div class="flex flex-col space-y-4 mb-6 sm:mb-8">
-                    <div class="flex items-center justify-center sm:justify-start">
-                        <i class="fas fa-calendar-alt text-2xl sm:text-3xl gold-text mr-2 sm:mr-4"></i>
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold gold-text text-center sm:text-left">Calendário</h2>
-                    </div>
-                    <div class="flex items-center justify-center space-x-2 sm:space-x-4">
-                        <button onclick="previousMonth()" class="btn-primary px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <span id="current-month" class="text-sm sm:text-lg md:text-xl font-bold text-yellow-300 min-w-32 sm:min-w-48 text-center"></span>
-                        <button onclick="nextMonth()" class="btn-primary px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 mb-4 sm:mb-6">
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Dom</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Seg</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Ter</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Qua</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Qui</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Sex</div>
-                    <div class="text-center font-bold text-yellow-400 py-2 sm:py-3 text-xs sm:text-sm md:text-lg">Sáb</div>
-                </div>
-                
-                <div id="calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 mb-6 sm:mb-8">
-                    <!-- Dias do calendário serão inseridos aqui -->
-                </div>
-                
-                <div class="border-t border-yellow-500/30 pt-8">
-                    <div class="flex items-center mb-6">
-                        <i class="fas fa-list text-2xl gold-text mr-3"></i>
-                        <h3 class="text-2xl font-bold gold-text">Agendamentos do Dia Selecionado</h3>
-                    </div>
-                    <div id="agendamentos-dia" class="space-y-4">
-                        <p class="text-gray-400 text-center py-8">Selecione um dia no calendário para ver os agendamentos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Relatórios Tab -->
-        <div id="relatorios-tab" class="tab-content hidden">
-            <div class="space-y-8">
-                <!-- Cards de Estatísticas -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="glass-effect rounded-xl p-6 text-center">
-                        <i class="fas fa-users text-3xl gold-text mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white" id="total-clientes">0</h3>
-                        <p class="text-yellow-300">Total Clientes</p>
-                    </div>
-                    
-                    <div class="glass-effect rounded-xl p-6 text-center">
-                        <i class="fas fa-calendar-check text-3xl gold-text mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white" id="agendamentos-mes">0</h3>
-                        <p class="text-yellow-300">Este Mês</p>
-                    </div>
-                    
-                    <div class="glass-effect rounded-xl p-6 text-center">
-                        <i class="fas fa-check-circle text-3xl text-green-400 mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white" id="compareceram">0</h3>
-                        <p class="text-yellow-300">Compareceram</p>
-                    </div>
-                    
-                    <div class="glass-effect rounded-xl p-6 text-center">
-                        <i class="fas fa-times-circle text-3xl text-red-400 mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white" id="faltaram">0</h3>
-                        <p class="text-yellow-300">Faltaram</p>
-                    </div>
-                </div>
-                
-                <!-- Filtros e Controles -->
-                <div class="glass-effect rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <i class="fas fa-filter text-2xl gold-text mr-3"></i>
-                        <h2 class="text-2xl font-bold gold-text">Filtros e Relatórios</h2>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-3 gap-6 mb-8">
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3">
-                                <i class="fas fa-calendar mr-2"></i>Período
-                            </label>
-                            <select id="filtro-periodo" class="w-full input-field rounded-xl px-4 py-3 text-white">
-                                <option value="mes-atual">Mês Atual</option>
-                                <option value="mes-anterior">Mês Anterior</option>
-                                <option value="ultimos-3-meses">Últimos 3 Meses</option>
-                                <option value="ano-atual">Ano Atual</option>
-                                <option value="personalizado">Período Personalizado</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3">
-                                <i class="fas fa-spa mr-2"></i>Procedimento
-                            </label>
-                            <select id="filtro-procedimento-relatorio" class="w-full input-field rounded-xl px-4 py-3 text-white">
-                                <option value="">Todos os Procedimentos</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-yellow-300 font-semibold mb-3">
-                                <i class="fas fa-check mr-2"></i>Status
-                            </label>
-                            <select id="filtro-status" class="w-full input-field rounded-xl px-4 py-3 text-white">
-                                <option value="">Todos</option>
-                                <option value="agendado">Agendado</option>
-                                <option value="compareceu">Compareceu</option>
-                                <option value="faltou">Faltou</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Resumo Financeiro -->
-                    <div class="grid md:grid-cols-3 gap-6 mb-8">
-                        <div class="glass-effect rounded-xl p-6 border border-green-500/30">
-                            <h4 class="text-lg font-bold text-green-400 mb-2">Receita Total</h4>
-                            <p class="text-2xl font-bold text-white" id="receita-total">R$ 0,00</p>
-                        </div>
-                        
-                        <div class="glass-effect rounded-xl p-6 border border-blue-500/30">
-                            <h4 class="text-lg font-bold text-blue-400 mb-2">Receita Realizada</h4>
-                            <p class="text-2xl font-bold text-white" id="receita-realizada">R$ 0,00</p>
-                        </div>
-                        
-                        <div class="glass-effect rounded-xl p-6 border border-red-500/30">
-                            <h4 class="text-lg font-bold text-red-400 mb-2">Receita Perdida</h4>
-                            <p class="text-2xl font-bold text-white" id="receita-perdida">R$ 0,00</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Botões de Ação -->
-                    <div class="grid md:grid-cols-4 gap-4 mb-8">
-                        <button onclick="gerarRelatorio()" class="btn-primary py-3 rounded-xl font-bold">
-                            <i class="fas fa-chart-line mr-2"></i>Gerar Relatório
-                        </button>
-                        
-                        <button onclick="exportarCSV()" class="btn-secondary py-3 rounded-xl font-bold">
-                            <i class="fas fa-download mr-2"></i>Exportar CSV
-                        </button>
-                        
-                        <button onclick="limparFiltros()" class="btn-secondary py-3 rounded-xl font-bold">
-                            <i class="fas fa-eraser mr-2"></i>Limpar Filtros
-                        </button>
-                        
-                        <button onclick="relatorioMensal()" class="btn-secondary py-3 rounded-xl font-bold">
-                            <i class="fas fa-calendar-alt mr-2"></i>Relatório Mensal
-                        </button>
-                    </div>
-                    
-                    <!-- Ações Rápidas -->
-                    <div class="border-t border-yellow-500/30 pt-6">
-                        <h3 class="text-xl font-bold gold-text mb-4">Ações Rápidas</h3>
-                        <div class="grid md:grid-cols-4 gap-4">
-                            <button onclick="marcarComparecimentoHoje()" class="btn-primary py-3 rounded-xl font-bold">
-                                <i class="fas fa-check mr-2"></i>Marcar Comparecimento Hoje
-                            </button>
-                            
-                            <button onclick="marcarFaltasOntem()" class="btn-secondary py-3 rounded-xl font-bold">
-                                <i class="fas fa-times mr-2"></i>Marcar Faltas Ontem
-                            </button>
-                            
-                            <button onclick="topClientes()" class="btn-secondary py-3 rounded-xl font-bold">
-                                <i class="fas fa-trophy mr-2"></i>Top 10 Clientes
-                            </button>
-                            
-                            <button onclick="proximosAgendamentos()" class="btn-secondary py-3 rounded-xl font-bold">
-                                <i class="fas fa-clock mr-2"></i>Próximos Agendamentos
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Lista Detalhada de Relatórios -->
-                <div class="glass-effect rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <i class="fas fa-list-ul text-2xl gold-text mr-3"></i>
-                        <h2 class="text-2xl font-bold gold-text">Relatório Detalhado</h2>
-                    </div>
-                    
-                    <div id="relatorio-detalhado" class="space-y-4">
-                        <p class="text-gray-400 text-center py-8">Clique em "Gerar Relatório" para ver os dados detalhados</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </main>
-        
-        <!-- Footer com botão de sair -->
-        <footer class="mt-12 pb-8">
-            <div class="container mx-auto px-4 text-center">
-                <div class="glass-effect rounded-xl p-6 inline-block">
-                    <div class="flex flex-col items-center space-y-4">
-                        <div class="text-center">
-                            <p class="text-yellow-300 font-semibold" id="user-name-footer">Usuário</p>
-                            <p class="text-yellow-200 text-sm" id="user-email-footer">email@exemplo.com</p>
-                        </div>
-                        <button onclick="logout()" class="btn-secondary px-6 py-3 rounded-xl font-bold">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Sair do Sistema
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Modal de Edição de Agendamento -->
-    <div id="modal-agendamento" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
-        <div class="glass-effect rounded-2xl p-8 max-w-2xl w-full max-h-90vh overflow-y-auto slide-down">
-            <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center">
-                    <i class="fas fa-edit text-3xl gold-text mr-4"></i>
-                    <h2 class="text-3xl font-bold gold-text">Editar Agendamento</h2>
-                </div>
-                <button onclick="closeModalAgendamento()" class="text-gray-400 hover:text-white text-2xl">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form id="edit-agendamento-form" class="space-y-6">
-                <input type="hidden" id="edit-agendamento-id">
-                
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-user mr-2"></i>Cliente *
-                        </label>
-                        <select id="edit-cliente-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
-                            <option value="">Selecione um cliente</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-spa mr-2"></i>Procedimento *
-                        </label>
-                        <select id="edit-procedimento-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
-                            <option value="">Selecione um procedimento</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-dollar-sign mr-2"></i>Valor
-                        </label>
-                        <input type="text" id="edit-valor-display" readonly class="w-full input-field rounded-xl px-4 py-4 text-yellow-400 font-bold">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-credit-card mr-2"></i>Forma de Pagamento *
-                        </label>
-                        <select id="edit-pagamento-select" required class="w-full input-field rounded-xl px-4 py-4 text-white">
-                            <option value="">Selecione</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="cartao">Cartão</option>
-                            <option value="pix">PIX</option>
-                            <option value="transferencia">Transferência</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-calendar mr-2"></i>Data *
-                        </label>
-                        <input type="date" id="edit-data-agendamento" required class="w-full input-field rounded-xl px-4 py-4 text-white">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-yellow-300 font-semibold mb-3 flex items-center">
-                            <i class="fas fa-clock mr-2"></i>Horário *
-                        </label>
-                        <input type="time" id="edit-hora-agendamento" required class="w-full input-field rounded-xl px-4 py-4 text-white">
-                    </div>
-                </div>
-                
-                <div class="flex space-x-4">
-                    <button type="submit" class="flex-1 btn-primary py-4 rounded-xl text-lg font-bold">
-                        <i class="fas fa-save mr-2"></i>Salvar Alterações
-                    </button>
-                    <button type="button" onclick="closeModalAgendamento()" class="btn-secondary px-8 py-4 rounded-xl font-bold">
-                        <i class="fas fa-times mr-2"></i>Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Dados em memória
-        let clientes = [];
-        let procedimentos = [];
-        let agendamentos = [];
-        let currentDate = new Date();
-        let selectedDate = null;
-        let currentUser = null;
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se Firebase está pronto
-            if (window.firebaseReady && window.firebaseAuth && window.firebaseDB) {
-                console.log('Firebase está pronto! Inicializando autenticação...');
-                initializeAuth();
-            } else if (window.firebaseError) {
-                console.error('Erro no Firebase:', window.firebaseError);
-                showNotification('Erro ao conectar com Firebase!', 'error');
-            } else {
-                // Aguardar um pouco e tentar novamente
-                setTimeout(() => {
-                    if (window.firebaseReady && window.firebaseAuth && window.firebaseDB) {
-                        initializeAuth();
-                    } else {
-                        showNotification('Erro ao carregar Firebase!', 'error');
-                    }
-                }, 2000);
-            }
-        });
-
-        // Sistema de Autenticação Firebase
-        function initializeAuth() {
-            window.firebaseAuth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    showMainApp(user);
-                    setupFirebaseListeners();
-                    loadFirebaseData();
-                } else {
-                    showLoginScreen();
-                }
-            });
-        }
-
-        function showLoginScreen() {
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('hidden');
-        }
-
-        function showMainApp(user) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            
-            // Atualizar informações do usuário no footer
-            document.getElementById('user-name-footer').textContent = user.displayName || 'Usuário';
-            document.getElementById('user-email-footer').textContent = user.email;
-            
-            // Inicializar app
-            updateCalendar();
-            updateAgendamentosHoje();
-            checkUpcomingAppointments();
-            updateRelatorios();
-            checkBirthdays();
-            
-            // Set minimum date to today
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('data-agendamento').min = today;
-            
-            // Eventos dos filtros
-            document.getElementById('filtro-clientes').addEventListener('input', function() {
-                updateClientesList(this.value);
-            });
-            
-            document.getElementById('filtro-agendamentos').addEventListener('input', function() {
-                updateAgendamentosHoje(this.value);
-            });
-            
-            // Verificar agendamentos a cada minuto
-            setInterval(checkUpcomingAppointments, 60000);
-        }
-
-        // Funções de Login - Disponibilizar globalmente
-        window.showLogin = function() {
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-        }
-
-        window.showRegister = function() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.remove('hidden');
-        }
-
-        function showAuthLoading() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('auth-loading').classList.remove('hidden');
-        }
-
-        function hideAuthLoading() {
-            document.getElementById('auth-loading').classList.add('hidden');
-        }
-
-        window.loginWithEmail = async function() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            if (!email || !password) {
-                showNotification('Preencha todos os campos!', 'error');
-                return;
-            }
-            
-            showAuthLoading();
-            
-            try {
-                await window.firebaseAuth.signInWithEmailAndPassword(email, password);
-                showNotification('Login realizado com sucesso!', 'success');
-            } catch (error) {
-                hideAuthLoading();
-                showLogin();
-                console.error('Erro no login:', error);
-                showNotification('Erro no login: ' + getErrorMessage(error.code), 'error');
-            }
-        }
-
-        window.registerWithEmail = async function() {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm').value;
-            
-            if (!name || !email || !password || !confirmPassword) {
-                showNotification('Preencha todos os campos!', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showNotification('As senhas não coincidem!', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showNotification('A senha deve ter pelo menos 6 caracteres!', 'error');
-                return;
-            }
-            
-            showAuthLoading();
-            
-            try {
-                const userCredential = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
-                
-                // Salvar dados do usuário
-                await window.firebaseDB.collection('users').doc(userCredential.user.uid).set({
-                    name: name,
-                    email: email,
-                    createdAt: new Date().toISOString()
-                });
-                
-                showNotification('Conta criada com sucesso!', 'success');
-            } catch (error) {
-                hideAuthLoading();
-                showRegister();
-                console.error('Erro no cadastro:', error);
-                showNotification('Erro no cadastro: ' + getErrorMessage(error.code), 'error');
-            }
-        }
-
-        window.loginWithGoogle = async function() {
-            showAuthLoading();
-            
-            try {
-                const result = await window.firebaseAuth.signInWithPopup(window.googleProvider);
-                
-                // Verificar se é primeiro login e salvar dados
-                const userRef = window.firebaseDB.collection('users').doc(result.user.uid);
-                const snapshot = await userRef.get();
-                
-                if (!snapshot.exists) {
-                    await userRef.set({
-                        name: result.user.displayName,
-                        email: result.user.email,
-                        createdAt: new Date().toISOString()
-                    });
-                }
-                
-                showNotification('Login realizado com sucesso!', 'success');
-            } catch (error) {
-                hideAuthLoading();
-                showLogin();
-                console.error('Erro no login com Google:', error);
-                showNotification('Erro no login com Google: ' + getErrorMessage(error.code), 'error');
-            }
-        }
-
-        window.logout = async function() {
-            try {
-                await window.firebaseAuth.signOut();
-                showNotification('Logout realizado com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro no logout:', error);
-                showNotification('Erro no logout!', 'error');
-            }
-        }
-
-        // Função de notificação
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl shadow-2xl max-w-sm ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 
-                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
-            } text-white`;
-            
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas ${
-                        type === 'success' ? 'fa-check-circle' : 
-                        type === 'error' ? 'fa-exclamation-circle' : 
-                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
-                    } mr-3"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideUp 0.3s ease-out';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Funções de relatórios adicionais
-        window.exportarCSV = function() {
-            const agendamentosFiltrados = getFilteredAppointments();
-            
-            if (agendamentosFiltrados.length === 0) {
-                showNotification('Nenhum dado para exportar!', 'warning');
-                return;
-            }
-            
-            let csvContent = 'Data,Hora,Cliente,Procedimento,Valor,Pagamento,Status\n';
-            
-            agendamentosFiltrados.forEach(agendamento => {
-                const cliente = clientes.find(c => c.id === agendamento.clienteId);
-                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                
-                csvContent += `${new Date(agendamento.data).toLocaleDateString('pt-BR')},${agendamento.hora},"${cliente?.nome || 'N/A'}","${procedimento?.nome || 'N/A'}",${procedimento?.valor.toFixed(2) || '0.00'},${agendamento.pagamento},${agendamento.status}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('Relatório exportado com sucesso!', 'success');
-        }
-
-        window.limparFiltros = function() {
-            document.getElementById('filtro-periodo').value = 'mes-atual';
-            document.getElementById('filtro-procedimento-relatorio').value = '';
-            document.getElementById('filtro-status').value = '';
-            updateRelatorios();
-            document.getElementById('relatorio-detalhado').innerHTML = '<p class="text-gray-400 text-center py-8">Clique em "Gerar Relatório" para ver os dados detalhados</p>';
-            showNotification('Filtros limpos!', 'success');
-        }
-
-        window.relatorioMensal = function() {
-            document.getElementById('filtro-periodo').value = 'mes-atual';
-            gerarRelatorio();
-        }
-
-        window.marcarComparecimentoHoje = async function() {
-            const hoje = new Date().toISOString().split('T')[0];
-            const agendamentosHoje = agendamentos.filter(a => a.data === hoje && a.status === 'agendado');
-            
-            if (agendamentosHoje.length === 0) {
-                showNotification('Nenhum agendamento pendente para hoje!', 'info');
-                return;
-            }
-            
-            try {
-                for (const agendamento of agendamentosHoje) {
-                    await window.firebaseDB.collection('agendamentos').doc(agendamento.id).update({
-                        status: 'compareceu',
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-                showNotification(`${agendamentosHoje.length} agendamentos marcados como compareceram!`, 'success');
-            } catch (error) {
-                console.error('Erro ao marcar comparecimentos:', error);
-                showNotification('Erro ao marcar comparecimentos!', 'error');
-            }
-        }
-
-        window.marcarFaltasOntem = async function() {
-            const ontem = new Date();
-            ontem.setDate(ontem.getDate() - 1);
-            const ontemStr = ontem.toISOString().split('T')[0];
-            
-            const agendamentosOntem = agendamentos.filter(a => a.data === ontemStr && a.status === 'agendado');
-            
-            if (agendamentosOntem.length === 0) {
-                showNotification('Nenhum agendamento pendente de ontem!', 'info');
-                return;
-            }
-            
-            try {
-                for (const agendamento of agendamentosOntem) {
-                    await window.firebaseDB.collection('agendamentos').doc(agendamento.id).update({
-                        status: 'faltou',
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-                showNotification(`${agendamentosOntem.length} agendamentos marcados como faltaram!`, 'success');
-            } catch (error) {
-                console.error('Erro ao marcar faltas:', error);
-                showNotification('Erro ao marcar faltas!', 'error');
-            }
-        }
-
-        window.topClientes = function() {
-            const clienteStats = {};
-            
-            agendamentos.forEach(agendamento => {
-                if (agendamento.status === 'compareceu') {
-                    const cliente = clientes.find(c => c.id === agendamento.clienteId);
-                    if (cliente) {
-                        if (!clienteStats[cliente.id]) {
-                            clienteStats[cliente.id] = {
-                                nome: cliente.nome,
-                                count: 0,
-                                valor: 0
-                            };
-                        }
-                        clienteStats[cliente.id].count++;
-                        
-                        const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                        if (procedimento) {
-                            clienteStats[cliente.id].valor += procedimento.valor;
-                        }
-                    }
-                }
-            });
-            
-            const topClientes = Object.values(clienteStats)
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 10);
-            
-            const container = document.getElementById('relatorio-detalhado');
-            container.innerHTML = '<h3 class="text-xl font-bold gold-text mb-6">Top 10 Clientes</h3>';
-            
-            if (topClientes.length === 0) {
-                container.innerHTML += '<p class="text-gray-400 text-center py-8">Nenhum cliente com procedimentos realizados</p>';
-                return;
-            }
-            
-            topClientes.forEach((cliente, index) => {
-                const div = document.createElement('div');
-                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
-                div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center">
-                            <span class="text-2xl font-bold gold-text mr-4">#${index + 1}</span>
-                            <div>
-                                <h4 class="font-bold text-yellow-300">${cliente.nome}</h4>
-                                <p class="text-gray-300">${cliente.count} procedimentos realizados</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-green-400 font-bold text-lg">R$ ${cliente.valor.toFixed(2)}</p>
-                            <p class="text-gray-300 text-sm">Total gasto</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        window.proximosAgendamentos = function() {
-            const hoje = new Date();
-            const proximosDias = new Date();
-            proximosDias.setDate(hoje.getDate() + 7);
-            
-            const proximosAgendamentos = agendamentos.filter(a => {
-                const dataAgendamento = new Date(a.data);
-                return dataAgendamento >= hoje && dataAgendamento <= proximosDias && a.status === 'agendado';
-            }).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
-            
-            const container = document.getElementById('relatorio-detalhado');
-            container.innerHTML = '<h3 class="text-xl font-bold gold-text mb-6">Próximos 7 Dias</h3>';
-            
-            if (proximosAgendamentos.length === 0) {
-                container.innerHTML += '<p class="text-gray-400 text-center py-8">Nenhum agendamento nos próximos 7 dias</p>';
-                return;
-            }
-            
-            proximosAgendamentos.forEach(agendamento => {
-                const cliente = clientes.find(c => c.id === agendamento.clienteId);
-                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                
-                const div = document.createElement('div');
-                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
-                div.innerHTML = `
-                    <div class="grid md:grid-cols-4 gap-4">
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Data/Hora</p>
-                            <p class="text-white">${new Date(agendamento.data).toLocaleDateString('pt-BR')} - ${agendamento.hora}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Cliente</p>
-                            <p class="text-white">${cliente?.nome || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Procedimento</p>
-                            <p class="text-white">${procedimento?.nome || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Valor</p>
-                            <p class="text-green-400 font-bold">R$ ${procedimento?.valor.toFixed(2) || '0.00'}</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function getFilteredAppointments() {
-            const periodo = document.getElementById('filtro-periodo').value;
-            const procedimentoId = document.getElementById('filtro-procedimento-relatorio').value;
-            const status = document.getElementById('filtro-status').value;
-            
-            let agendamentosFiltrados = [...agendamentos];
-            
-            // Filtrar por período
-            const hoje = new Date();
-            if (periodo === 'mes-atual') {
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
-                    const data = new Date(a.data);
-                    return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
-                });
-            } else if (periodo === 'mes-anterior') {
-                const mesAnterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
-                    const data = new Date(a.data);
-                    return data.getMonth() === mesAnterior.getMonth() && data.getFullYear() === mesAnterior.getFullYear();
-                });
-            } else if (periodo === 'ultimos-3-meses') {
-                const tresMesesAtras = new Date();
-                tresMesesAtras.setMonth(hoje.getMonth() - 3);
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
-                    const data = new Date(a.data);
-                    return data >= tresMesesAtras;
-                });
-            } else if (periodo === 'ano-atual') {
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => {
-                    const data = new Date(a.data);
-                    return data.getFullYear() === hoje.getFullYear();
-                });
-            }
-            
-            // Filtrar por procedimento
-            if (procedimentoId) {
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => a.procedimentoId === procedimentoId);
-            }
-            
-            // Filtrar por status
-            if (status) {
-                agendamentosFiltrados = agendamentosFiltrados.filter(a => a.status === status);
-            }
-            
-            return agendamentosFiltrados;
-        }
-
-        function getErrorMessage(errorCode) {
-            const errorMessages = {
-                'auth/user-not-found': 'Usuário não encontrado',
-                'auth/wrong-password': 'Senha incorreta',
-                'auth/email-already-in-use': 'Este email já está em uso',
-                'auth/weak-password': 'Senha muito fraca',
-                'auth/invalid-email': 'Email inválido',
-                'auth/popup-closed-by-user': 'Login cancelado pelo usuário',
-                'auth/network-request-failed': 'Erro de conexão'
-            };
-            
-            return errorMessages[errorCode] || 'Erro desconhecido';
-        }
-
-        // Sistema Firestore em Tempo Real
-        function setupFirebaseListeners() {
-            // Listener para clientes
-            window.firebaseDB.collection('clientes')
-                .where('userId', '==', currentUser.uid)
-                .onSnapshot((snapshot) => {
-                    clientes = [];
-                    snapshot.forEach((doc) => {
-                        clientes.push({ ...doc.data(), id: doc.id });
-                    });
-                    // Ordenar no frontend
-                    clientes.sort((a, b) => a.nome.localeCompare(b.nome));
-                    updateClientesList();
-                    updateClienteSelect();
-                    updateRelatorios();
-                    checkBirthdays();
-                });
-            
-            // Listener para procedimentos
-            window.firebaseDB.collection('procedimentos')
-                .where('userId', '==', currentUser.uid)
-                .onSnapshot((snapshot) => {
-                    procedimentos = [];
-                    snapshot.forEach((doc) => {
-                        procedimentos.push({ ...doc.data(), id: doc.id });
-                    });
-                    // Ordenar no frontend
-                    procedimentos.sort((a, b) => a.nome.localeCompare(b.nome));
-                    updateProcedimentosList();
-                    updateProcedimentoSelect();
-                    updateRelatorios();
-                });
-            
-            // Listener para agendamentos
-            window.firebaseDB.collection('agendamentos')
-                .where('userId', '==', currentUser.uid)
-                .onSnapshot((snapshot) => {
-                    agendamentos = [];
-                    snapshot.forEach((doc) => {
-                        agendamentos.push({ ...doc.data(), id: doc.id });
-                    });
-                    // Ordenar no frontend
-                    agendamentos.sort((a, b) => a.data.localeCompare(b.data));
-                    updateAgendamentosHoje();
-                    updateCalendar();
-                    updateRelatorios();
-                });
-        }
-
-        async function loadFirebaseData() {
-            try {
-                // Carregar clientes
-                const clientesSnapshot = await window.firebaseDB.collection('clientes')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-                clientes = [];
-                clientesSnapshot.forEach((doc) => {
-                    clientes.push({ ...doc.data(), id: doc.id });
-                });
-                clientes.sort((a, b) => a.nome.localeCompare(b.nome));
-                
-                // Carregar procedimentos
-                const procedimentosSnapshot = await window.firebaseDB.collection('procedimentos')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-                procedimentos = [];
-                procedimentosSnapshot.forEach((doc) => {
-                    procedimentos.push({ ...doc.data(), id: doc.id });
-                });
-                procedimentos.sort((a, b) => a.nome.localeCompare(b.nome));
-                
-                // Carregar agendamentos
-                const agendamentosSnapshot = await window.firebaseDB.collection('agendamentos')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-                agendamentos = [];
-                agendamentosSnapshot.forEach((doc) => {
-                    agendamentos.push({ ...doc.data(), id: doc.id });
-                });
-                agendamentos.sort((a, b) => a.data.localeCompare(b.data));
-                
-                // Atualizar interface
-                updateClientesList();
-                updateProcedimentosList();
-                updateClienteSelect();
-                updateProcedimentoSelect();
-                updateAgendamentosHoje();
-                updateCalendar();
-                updateRelatorios();
-                
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                showNotification('Erro ao carregar dados!', 'error');
-            }
-        }
-
-        // Navegação entre abas
-        function showTab(tabName) {
-            // Esconder todas as abas
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-            });
-            
-            // Mostrar aba selecionada
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            document.getElementById(tabName + '-tab').classList.add('fade-in');
-            
-            // Atualizar botões de navegação
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-secondary');
-            });
-            
-            // Encontrar o botão correto e ativá-lo
-            const targetBtn = event.target.closest('.nav-btn');
-            if (targetBtn) {
-                targetBtn.classList.remove('btn-secondary');
-                targetBtn.classList.add('btn-primary');
-            }
-            
-            // Atualizar relatórios se necessário
-            if (tabName === 'relatorios') {
-                updateRelatorios();
-            }
-        }
-
-        // Cadastro de Cliente
-        document.getElementById('cliente-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            console.log('Iniciando cadastro de cliente...');
-            console.log('Firebase DB:', window.firebaseDB);
-            console.log('Current User:', currentUser);
-            
-            if (!currentUser) {
-                showNotification('Usuário não autenticado!', 'error');
-                return;
-            }
-            
-            const clienteId = document.getElementById('cliente-id').value;
-            const cliente = {
-                nome: document.getElementById('cliente-nome').value,
-                nascimento: document.getElementById('cliente-nascimento').value,
-                endereco: document.getElementById('cliente-endereco').value,
-                bairro: document.getElementById('cliente-bairro').value,
-                cidade: document.getElementById('cliente-cidade').value,
-                telefone: document.getElementById('cliente-telefone').value,
-                responsavel: document.getElementById('cliente-responsavel').value,
-                rg: document.getElementById('cliente-rg').value,
-                cpf: document.getElementById('cliente-cpf').value,
-                anamnese: {
-                    alergia: document.getElementById('alergia').value,
-                    alergiaEspecificar: document.getElementById('alergia-especificar').value,
-                    gestante: document.getElementById('gestante').value,
-                    doencaOcular: document.getElementById('doenca-ocular').value,
-                    doencaEspecificar: document.getElementById('doenca-especificar').value,
-                    observacoes: document.getElementById('observacoes').value
-                },
-                userId: currentUser.uid,
-                updatedAt: new Date().toISOString()
-            };
-            
-            console.log('Dados do cliente:', cliente);
-            
-            try {
-                if (clienteId) {
-                    // Editar cliente existente
-                    console.log('Editando cliente existente...');
-                    await window.firebaseDB.collection('clientes').doc(clienteId).set(cliente);
-                    showNotification('Cliente atualizado com sucesso!', 'success');
-                } else {
-                    // Novo cliente
-                    console.log('Criando novo cliente...');
-                    cliente.createdAt = new Date().toISOString();
-                    const docRef = await window.firebaseDB.collection('clientes').add(cliente);
-                    console.log('Cliente criado com ID:', docRef.id);
-                    showNotification('Cliente cadastrado com sucesso!', 'success');
-                }
-                
-                resetClienteForm();
-            } catch (error) {
-                console.error('Erro detalhado ao salvar cliente:', error);
-                showNotification('Erro ao salvar cliente: ' + error.message, 'error');
-            }
-        });
-
-        // Cancelar edição de cliente
-        document.getElementById('cancelar-edicao').addEventListener('click', function() {
-            resetClienteForm();
-        });
-
-        function resetClienteForm() {
-            document.getElementById('cliente-form').reset();
-            document.getElementById('cliente-id').value = '';
-            document.getElementById('cliente-form-title').textContent = 'Cadastrar Cliente';
-            document.getElementById('cliente-btn-text').textContent = 'Cadastrar Cliente';
-            document.getElementById('cancelar-edicao').classList.add('hidden');
-            document.querySelector('.fa-user-plus, .fa-edit').className = 'fas fa-user-plus text-3xl gold-text mr-4';
-        }
-
-        // Cadastro de Procedimento
-        document.getElementById('procedimento-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            console.log('Iniciando cadastro de procedimento...');
-            console.log('Firebase DB:', window.firebaseDB);
-            console.log('Current User:', currentUser);
-            
-            if (!currentUser) {
-                console.error('Usuário não autenticado!');
-                showNotification('Usuário não autenticado!', 'error');
-                return;
-            }
-            
-            // Aguardar Firebase estar completamente carregado
-            if (!window.firebaseReady || !window.firebaseUtils) {
-                console.error('Firebase não está pronto!');
-                showNotification('Sistema ainda carregando, tente novamente!', 'error');
-                return;
-            }
-            
-            const procedimento = {
-                nome: document.getElementById('procedimento-nome').value.trim(),
-                valor: parseFloat(document.getElementById('procedimento-valor').value) || 0,
-                duracao: document.getElementById('procedimento-duracao').value.trim() || '',
-                descricao: document.getElementById('procedimento-descricao').value.trim() || '',
-                userId: currentUser.uid,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-            
-            console.log('Dados do procedimento:', procedimento);
-            
-            // Validações básicas
-            if (!procedimento.nome) {
-                showNotification('Nome do procedimento é obrigatório!', 'error');
-                return;
-            }
-            
-            if (procedimento.valor <= 0) {
-                showNotification('Valor deve ser maior que zero!', 'error');
-                return;
-            }
-            
-            try {
-                console.log('Salvando procedimento no Firestore...');
-                console.log('Collection path: procedimentos');
-                console.log('User ID:', currentUser.uid);
-                
-                const docRef = await window.firebaseDB.collection('procedimentos').add(procedimento);
-                
-                console.log('Procedimento criado com sucesso! ID:', docRef.id);
-                
-                // Reset form
-                this.reset();
-                
-                // Show success message
-                showNotification('Procedimento cadastrado com sucesso! 💅', 'success');
-                
-            } catch (error) {
-                console.error('Erro detalhado ao salvar procedimento:', error);
-                console.error('Error code:', error.code);
-                console.error('Error message:', error.message);
-                
-                // Tentar diagnóstico do erro
-                if (error.code === 'permission-denied') {
-                    console.error('Erro de permissão - verificar regras do Firestore');
-                    showNotification('Erro de permissão. Verifique as configurações do Firebase.', 'error');
-                } else if (error.code === 'unavailable') {
-                    showNotification('Serviço temporariamente indisponível. Tente novamente.', 'error');
-                } else {
-                    showNotification('Erro ao salvar procedimento: ' + error.message, 'error');
-                }
-            }
-        });
-
-        // Agendamento
-        document.getElementById('agendamento-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const agendamento = {
-                clienteId: document.getElementById('cliente-select').value,
-                procedimentoId: document.getElementById('procedimento-select').value,
-                pagamento: document.getElementById('pagamento-select').value,
-                data: document.getElementById('data-agendamento').value,
-                hora: document.getElementById('hora-agendamento').value,
-                status: 'agendado',
-                userId: currentUser.uid,
-                createdAt: new Date().toISOString()
-            };
-            
-            try {
-                await window.firebaseDB.collection('agendamentos').add(agendamento);
-                
-                // Reset form
-                this.reset();
-                document.getElementById('valor-display').value = '';
-                
-                // Show success message
-                showNotification('Agendamento realizado com sucesso! 📅', 'success');
-            } catch (error) {
-                console.error('Erro ao salvar agendamento:', error);
-                showNotification('Erro ao salvar agendamento!', 'error');
-            }
-        });
-
-        // Atualizar valor quando procedimento é selecionado
-        document.getElementById('procedimento-select').addEventListener('change', function() {
-            const procedimentoId = this.value;
-            const procedimento = procedimentos.find(p => p.id == procedimentoId);
-            
-            if (procedimento) {
-                document.getElementById('valor-display').value = `R$ ${procedimento.valor.toFixed(2)}`;
-            } else {
-                document.getElementById('valor-display').value = '';
-            }
-        });
-
-        // Atualizar valor no modal de edição
-        document.getElementById('edit-procedimento-select').addEventListener('change', function() {
-            const procedimentoId = this.value;
-            const procedimento = procedimentos.find(p => p.id == procedimentoId);
-            
-            if (procedimento) {
-                document.getElementById('edit-valor-display').value = `R$ ${procedimento.valor.toFixed(2)}`;
-            } else {
-                document.getElementById('edit-valor-display').value = '';
-            }
-        });
-
-        // Edição de Agendamento
-        document.getElementById('edit-agendamento-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const agendamentoId = document.getElementById('edit-agendamento-id').value;
-            
-            const agendamentoAtualizado = {
-                clienteId: document.getElementById('edit-cliente-select').value,
-                procedimentoId: document.getElementById('edit-procedimento-select').value,
-                pagamento: document.getElementById('edit-pagamento-select').value,
-                data: document.getElementById('edit-data-agendamento').value,
-                hora: document.getElementById('edit-hora-agendamento').value,
-                status: 'agendado',
-                userId: currentUser.uid,
-                updatedAt: new Date().toISOString()
-            };
-            
-            try {
-                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).set(agendamentoAtualizado);
-                
-                closeModalAgendamento();
-                showNotification('Agendamento atualizado com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro ao atualizar agendamento:', error);
-                showNotification('Erro ao atualizar agendamento!', 'error');
-            }
-        });
-
-        function openModalAgendamento(agendamentoId) {
-            const agendamento = agendamentos.find(a => a.id == agendamentoId);
-            if (!agendamento) return;
-            
-            // Preencher selects
-            updateEditClienteSelect();
-            updateEditProcedimentoSelect();
-            
-            // Preencher dados do agendamento
-            document.getElementById('edit-agendamento-id').value = agendamento.id;
-            document.getElementById('edit-cliente-select').value = agendamento.clienteId;
-            document.getElementById('edit-procedimento-select').value = agendamento.procedimentoId;
-            document.getElementById('edit-pagamento-select').value = agendamento.pagamento;
-            document.getElementById('edit-data-agendamento').value = agendamento.data;
-            document.getElementById('edit-hora-agendamento').value = agendamento.hora;
-            
-            // Atualizar valor
-            const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
-            if (procedimento) {
-                document.getElementById('edit-valor-display').value = `R$ ${procedimento.valor.toFixed(2)}`;
-            }
-            
-            document.getElementById('modal-agendamento').classList.remove('hidden');
-        }
-
-        function closeModalAgendamento() {
-            document.getElementById('modal-agendamento').classList.add('hidden');
-            document.getElementById('edit-agendamento-form').reset();
-        }
-
-        function updateEditClienteSelect() {
-            const select = document.getElementById('edit-cliente-select');
-            select.innerHTML = '<option value="">Selecione um cliente</option>';
-            
-            clientes.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id;
-                option.textContent = cliente.nome;
-                select.appendChild(option);
-            });
-        }
-
-        function updateEditProcedimentoSelect() {
-            const select = document.getElementById('edit-procedimento-select');
-            select.innerHTML = '<option value="">Selecione um procedimento</option>';
-            
-            procedimentos.forEach(procedimento => {
-                const option = document.createElement('option');
-                option.value = procedimento.id;
-                option.textContent = `${procedimento.nome} - R$ ${procedimento.valor.toFixed(2)}`;
-                select.appendChild(option);
-            });
-        }
-
-        // Funções de atualização das listas
-        function updateClientesList(filtro = '') {
-            const lista = document.getElementById('lista-clientes');
-            lista.innerHTML = '';
-            
-            if (clientes.length === 0) {
-                lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum cliente cadastrado</p>';
-                return;
-            }
-            
-            // Ordenar alfabeticamente e filtrar
-            let clientesFiltrados = clientes
-                .filter(cliente => cliente.nome.toLowerCase().includes(filtro.toLowerCase()))
-                .sort((a, b) => a.nome.localeCompare(b.nome));
-            
-            if (clientesFiltrados.length === 0) {
-                lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum cliente encontrado</p>';
-                return;
-            }
-            
-            clientesFiltrados.forEach(cliente => {
-                const div = document.createElement('div');
-                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 card-hover';
-                div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 cursor-pointer" onclick="editCliente('${cliente.id}')">
-                            <h4 class="font-bold text-yellow-300 text-lg">${cliente.nome}</h4>
-                        </div>
-                        <button onclick="deleteCliente('${cliente.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                lista.appendChild(div);
-            });
-        }
-
-        function editCliente(clienteId) {
-            const cliente = clientes.find(c => c.id == clienteId);
-            if (!cliente) return;
-            
-            // Preencher formulário
-            document.getElementById('cliente-id').value = cliente.id;
-            document.getElementById('cliente-nome').value = cliente.nome;
-            document.getElementById('cliente-nascimento').value = cliente.nascimento || '';
-            document.getElementById('cliente-endereco').value = cliente.endereco || '';
-            document.getElementById('cliente-bairro').value = cliente.bairro || '';
-            document.getElementById('cliente-cidade').value = cliente.cidade || '';
-            document.getElementById('cliente-telefone').value = cliente.telefone;
-            document.getElementById('cliente-responsavel').value = cliente.responsavel || '';
-            document.getElementById('cliente-rg').value = cliente.rg || '';
-            document.getElementById('cliente-cpf').value = cliente.cpf || '';
-            
-            // Preencher anamnese
-            if (cliente.anamnese) {
-                document.getElementById('alergia').value = cliente.anamnese.alergia || '';
-                document.getElementById('alergia-especificar').value = cliente.anamnese.alergiaEspecificar || '';
-                document.getElementById('gestante').value = cliente.anamnese.gestante || '';
-                document.getElementById('doenca-ocular').value = cliente.anamnese.doencaOcular || '';
-                document.getElementById('doenca-especificar').value = cliente.anamnese.doencaEspecificar || '';
-                document.getElementById('observacoes').value = cliente.anamnese.observacoes || '';
-            }
-            
-            // Atualizar interface
-            document.getElementById('cliente-form-title').textContent = 'Editar Cliente';
-            document.getElementById('cliente-btn-text').textContent = 'Salvar Alterações';
-            document.getElementById('cancelar-edicao').classList.remove('hidden');
-            document.querySelector('.fa-user-plus').className = 'fas fa-edit text-3xl gold-text mr-4';
-        }
-
-        function updateProcedimentosList() {
-            const lista = document.getElementById('lista-procedimentos');
-            lista.innerHTML = '';
-            
-            if (procedimentos.length === 0) {
-                lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum procedimento cadastrado</p>';
-                return;
-            }
-            
-            procedimentos.forEach(procedimento => {
-                const div = document.createElement('div');
-                div.className = 'glass-effect p-6 rounded-xl border border-yellow-500/30 hover-scale';
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-yellow-300 text-lg mb-2">${procedimento.nome}</h4>
-                            <div class="space-y-1">
-                                <p class="text-green-400 font-bold text-xl">R$ ${procedimento.valor.toFixed(2)}</p>
-                                ${procedimento.duracao ? `<p class="text-gray-300 flex items-center">
-                                    <i class="fas fa-clock mr-2 text-yellow-400"></i>${procedimento.duracao} minutos
-                                </p>` : ''}
-                                ${procedimento.descricao ? `<p class="text-gray-300 mt-2">${procedimento.descricao}</p>` : ''}
-                            </div>
-                        </div>
-                        <button onclick="deleteProcedimento('${procedimento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                lista.appendChild(div);
-            });
-        }
-
-        function updateClienteSelect() {
-            const select = document.getElementById('cliente-select');
-            select.innerHTML = '<option value="">Selecione um cliente</option>';
-            
-            clientes.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id;
-                option.textContent = cliente.nome;
-                select.appendChild(option);
-            });
-        }
-
-        function updateProcedimentoSelect() {
-            const select = document.getElementById('procedimento-select');
-            select.innerHTML = '<option value="">Selecione um procedimento</option>';
-            
-            // Atualizar também o select de relatórios
-            const selectRelatorio = document.getElementById('filtro-procedimento-relatorio');
-            selectRelatorio.innerHTML = '<option value="">Todos os Procedimentos</option>';
-            
-            procedimentos.forEach(procedimento => {
-                const option = document.createElement('option');
-                option.value = procedimento.id;
-                option.textContent = `${procedimento.nome} - R$ ${procedimento.valor.toFixed(2)}`;
-                select.appendChild(option);
-                
-                const optionRelatorio = document.createElement('option');
-                optionRelatorio.value = procedimento.id;
-                optionRelatorio.textContent = procedimento.nome;
-                selectRelatorio.appendChild(optionRelatorio);
-            });
-        }
-
-        function updateAgendamentosHoje(filtro = '') {
-            const hoje = new Date().toISOString().split('T')[0];
-            let agendamentosHoje = agendamentos.filter(a => a.data === hoje);
-            
-            // Filtrar por cliente ou procedimento
-            if (filtro) {
-                agendamentosHoje = agendamentosHoje.filter(agendamento => {
-                    const cliente = clientes.find(c => c.id == agendamento.clienteId);
-                    const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
-                    return (cliente?.nome.toLowerCase().includes(filtro.toLowerCase())) ||
-                           (procedimento?.nome.toLowerCase().includes(filtro.toLowerCase()));
-                });
-            }
-            
-            const container = document.getElementById('agendamentos-hoje');
-            container.innerHTML = '';
-            
-            if (agendamentosHoje.length === 0) {
-                const mensagem = filtro ? 'Nenhum agendamento encontrado' : 'Nenhum agendamento para hoje';
-                container.innerHTML = `<p class="text-gray-400 text-center py-8">${mensagem}</p>`;
-                return;
-            }
-            
-            agendamentosHoje.sort((a, b) => a.hora.localeCompare(b.hora));
-            
-            agendamentosHoje.forEach(agendamento => {
-                const cliente = clientes.find(c => c.id == agendamento.clienteId);
-                const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
-                
-                const statusColor = {
-                    'agendado': 'border-yellow-500/30',
-                    'compareceu': 'border-green-500/50 bg-green-900/20',
-                    'faltou': 'border-red-500/50 bg-red-900/20'
-                };
-                
-                const statusIcon = {
-                    'agendado': 'fas fa-clock text-yellow-400',
-                    'compareceu': 'fas fa-check-circle text-green-400',
-                    'faltou': 'fas fa-times-circle text-red-400'
-                };
-                
-                const statusText = {
-                    'agendado': 'Agendado',
-                    'compareceu': 'Compareceu',
-                    'faltou': 'Faltou'
-                };
-                
-                const div = document.createElement('div');
-                div.className = `glass-effect p-6 rounded-xl border ${statusColor[agendamento.status]} hover-scale`;
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1" onclick="openModalAgendamento('${agendamento.id}')">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock text-yellow-400 mr-2"></i>
-                                    <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="${statusIcon[agendamento.status]} mr-2"></i>
-                                    <span class="text-sm font-semibold ${agendamento.status === 'compareceu' ? 'text-green-400' : agendamento.status === 'faltou' ? 'text-red-400' : 'text-yellow-400'}">${statusText[agendamento.status]}</span>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <p class="text-white flex items-center">
-                                    <i class="fas fa-user mr-2 text-yellow-400"></i>
-                                    ${cliente?.nome || 'Cliente não encontrado'}
-                                </p>
-                                <p class="text-gray-300 flex items-center">
-                                    <i class="fas fa-spa mr-2 text-yellow-400"></i>
-                                    ${procedimento?.nome || 'Procedimento não encontrado'}
-                                </p>
-                                <p class="text-green-400 font-bold text-lg flex items-center">
-                                    <i class="fas fa-dollar-sign mr-2"></i>
-                                    R$ ${procedimento?.valor.toFixed(2) || '0.00'}
-                                </p>
-                                <p class="text-gray-300 flex items-center">
-                                    <i class="fas fa-credit-card mr-2 text-yellow-400"></i>
-                                    ${agendamento.pagamento}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col space-y-2 ml-4">
-                            ${agendamento.status === 'agendado' ? `
-                                <button onclick="marcarComparecimento('${agendamento.id}')" class="btn-primary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-check mr-1"></i>Compareceu
-                                </button>
-                                <button onclick="marcarFalta('${agendamento.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-colors">
-                                    <i class="fas fa-times mr-1"></i>Faltou
-                                </button>
-                            ` : agendamento.status === 'compareceu' ? `
-                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-undo mr-1"></i>Desfazer
-                                </button>
-                            ` : `
-                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-undo mr-1"></i>Desfazer
-                                </button>
-                            `}
-                            <button onclick="deleteAgendamento('${agendamento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // Calendário
-        function updateCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            document.getElementById('current-month').textContent = 
-                currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
-            
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 42; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
-                
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day glass-effect p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl text-center cursor-pointer border border-yellow-500/20 min-h-8 sm:min-h-12 md:min-h-16 flex flex-col justify-center items-center';
-                
-                const dateStr = date.toISOString().split('T')[0];
-                const dayAppointments = agendamentos.filter(a => a.data === dateStr);
-                const hasAppointments = dayAppointments.length > 0;
-                
-                if (hasAppointments) {
-                    dayElement.classList.add('has-appointment');
-                }
-                
-                if (date.getMonth() !== month) {
-                    dayElement.classList.add('text-gray-500');
-                } else {
-                    dayElement.classList.add('text-white');
-                }
-                
-                dayElement.innerHTML = `
-                    <div class="font-bold text-xs sm:text-sm md:text-lg">${date.getDate()}</div>
-                    ${hasAppointments ? `<div class="text-xs mt-1 text-yellow-400 hidden sm:block">${dayAppointments.length} agend.</div>` : ''}
-                `;
-                
-                dayElement.addEventListener('click', () => selectDate(dateStr));
-                grid.appendChild(dayElement);
-            }
-        }
-
-        function selectDate(dateStr) {
-            selectedDate = dateStr;
-            
-            // Highlight selected date
-            document.querySelectorAll('.calendar-day').forEach(day => {
-                day.classList.remove('ring-2', 'ring-yellow-400');
-            });
-            
-            event.target.closest('.calendar-day').classList.add('ring-2', 'ring-yellow-400');
-            
-            // Show appointments for selected date
-            const agendamentosData = agendamentos.filter(a => a.data === dateStr);
-            const container = document.getElementById('agendamentos-dia');
-            container.innerHTML = '';
-            
-            if (agendamentosData.length === 0) {
-                container.innerHTML = '<p class="text-gray-400">Nenhum agendamento para este dia</p>';
-                return;
-            }
-            
-            agendamentosData.sort((a, b) => a.hora.localeCompare(b.hora));
-            
-            agendamentosData.forEach(agendamento => {
-                const cliente = clientes.find(c => c.id == agendamento.clienteId);
-                const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
-                
-                const statusColor = {
-                    'agendado': 'border-yellow-500/30',
-                    'compareceu': 'border-green-500/50 bg-green-900/20',
-                    'faltou': 'border-red-500/50 bg-red-900/20'
-                };
-                
-                const statusIcon = {
-                    'agendado': 'fas fa-clock text-yellow-400',
-                    'compareceu': 'fas fa-check-circle text-green-400',
-                    'faltou': 'fas fa-times-circle text-red-400'
-                };
-                
-                const statusText = {
-                    'agendado': 'Agendado',
-                    'compareceu': 'Compareceu',
-                    'faltou': 'Faltou'
-                };
-                
-                const div = document.createElement('div');
-                div.className = `glass-effect p-6 rounded-xl border ${statusColor[agendamento.status]} hover-scale`;
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1" onclick="openModalAgendamento('${agendamento.id}')">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock text-yellow-400 mr-2"></i>
-                                    <h4 class="font-bold text-yellow-300 text-lg">${agendamento.hora}</h4>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="${statusIcon[agendamento.status]} mr-2"></i>
-                                    <span class="text-sm font-semibold ${agendamento.status === 'compareceu' ? 'text-green-400' : agendamento.status === 'faltou' ? 'text-red-400' : 'text-yellow-400'}">${statusText[agendamento.status]}</span>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <p class="text-white flex items-center">
-                                    <i class="fas fa-user mr-2 text-yellow-400"></i>
-                                    ${cliente?.nome || 'Cliente não encontrado'}
-                                </p>
-                                <p class="text-gray-300 flex items-center">
-                                    <i class="fas fa-spa mr-2 text-yellow-400"></i>
-                                    ${procedimento?.nome || 'Procedimento não encontrado'}
-                                </p>
-                                <p class="text-green-400 font-bold text-lg flex items-center">
-                                    <i class="fas fa-dollar-sign mr-2"></i>
-                                    R$ ${procedimento?.valor.toFixed(2) || '0.00'}
-                                </p>
-                                <p class="text-gray-300 flex items-center">
-                                    <i class="fas fa-credit-card mr-2 text-yellow-400"></i>
-                                    ${agendamento.pagamento}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col space-y-2 ml-4">
-                            ${agendamento.status === 'agendado' ? `
-                                <button onclick="marcarComparecimento('${agendamento.id}')" class="btn-primary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-check mr-1"></i>Compareceu
-                                </button>
-                                <button onclick="marcarFalta('${agendamento.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-colors">
-                                    <i class="fas fa-times mr-1"></i>Faltou
-                                </button>
-                            ` : agendamento.status === 'compareceu' ? `
-                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-undo mr-1"></i>Desfazer
-                                </button>
-                            ` : `
-                                <button onclick="voltarAgendado('${agendamento.id}')" class="btn-secondary px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap">
-                                    <i class="fas fa-undo mr-1"></i>Desfazer
-                                </button>
-                            `}
-                            <button onclick="deleteAgendamento('${agendamento.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-colors">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            updateCalendar();
-        }
-
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            updateCalendar();
-        }
-
-        // Funções de exclusão
-        async function deleteCliente(id) {
-            if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                try {
-                    await window.firebaseDB.collection('clientes').doc(id).delete();
-                    showNotification('Cliente excluído com sucesso!', 'success');
-                } catch (error) {
-                    console.error('Erro ao excluir cliente:', error);
-                    showNotification('Erro ao excluir cliente!', 'error');
-                }
-            }
-        }
-
-        async function deleteProcedimento(id) {
-            if (confirm('Tem certeza que deseja excluir este procedimento?')) {
-                try {
-                    await window.firebaseDB.collection('procedimentos').doc(id).delete();
-                    showNotification('Procedimento excluído com sucesso!', 'success');
-                } catch (error) {
-                    console.error('Erro ao excluir procedimento:', error);
-                    showNotification('Erro ao excluir procedimento!', 'error');
-                }
-            }
-        }
-
-        async function deleteAgendamento(id) {
-            if (confirm('Tem certeza que deseja excluir este agendamento?')) {
-                try {
-                    await window.firebaseDB.collection('agendamentos').doc(id).delete();
-                    showNotification('Agendamento excluído com sucesso!', 'success');
-                } catch (error) {
-                    console.error('Erro ao excluir agendamento:', error);
-                    showNotification('Erro ao excluir agendamento!', 'error');
-                }
-            }
-        }
-
-        // Sistema de Notificações de Agendamento
-        let notificationsShown = new Set();
-        
-        // Sistema de Aniversários
-        let birthdayBannerClosed = false;
-        
-        function checkUpcomingAppointments() {
-            const now = new Date();
-            const hoje = now.toISOString().split('T')[0];
-            const agendamentosHoje = agendamentos.filter(a => a.data === hoje);
-            
-            agendamentosHoje.forEach(agendamento => {
-                const [hora, minuto] = agendamento.hora.split(':').map(Number);
-                const agendamentoTime = new Date();
-                agendamentoTime.setHours(hora, minuto, 0, 0);
-                
-                const diffMinutes = (agendamentoTime - now) / (1000 * 60);
-                
-                // Notificar 2 horas antes (120 minutos)
-                if (diffMinutes <= 120 && diffMinutes > 0 && !notificationsShown.has(agendamento.id)) {
-                    const cliente = clientes.find(c => c.id == agendamento.clienteId);
-                    const procedimento = procedimentos.find(p => p.id == agendamento.procedimentoId);
-                    
-                    showAppointmentAlert(agendamento, cliente, procedimento, diffMinutes);
-                    notificationsShown.add(agendamento.id);
-                }
-            });
-        }
-        
-        function showAppointmentAlert(agendamento, cliente, procedimento, minutesLeft) {
-            const horasRestantes = Math.floor(minutesLeft / 60);
-            const minutosRestantes = Math.floor(minutesLeft % 60);
-            
-            let tempoTexto = '';
-            if (horasRestantes > 0) {
-                tempoTexto = `${horasRestantes}h ${minutosRestantes}min`;
-            } else {
-                tempoTexto = `${minutosRestantes} minutos`;
-            }
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.id = `alert-${agendamento.id}`;
-            alertDiv.className = 'notification-alert glass-effect p-6 rounded-xl border-2 border-yellow-400 bg-yellow-900/50 text-white shadow-2xl';
-            alertDiv.innerHTML = `
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center mb-3">
-                            <i class="fas fa-bell text-yellow-400 text-2xl mr-3"></i>
-                            <h3 class="font-bold text-lg text-yellow-300">Próximo Cliente!</h3>
-                        </div>
-                        <div class="space-y-2">
-                            <p class="font-semibold">
-                                <i class="fas fa-user mr-2 text-yellow-400"></i>
-                                ${cliente?.nome || 'Cliente não encontrado'}
-                            </p>
-                            <p class="text-gray-300">
-                                <i class="fas fa-spa mr-2 text-yellow-400"></i>
-                                ${procedimento?.nome || 'Procedimento não encontrado'}
-                            </p>
-                            <p class="font-bold text-yellow-300">
-                                <i class="fas fa-clock mr-2"></i>
-                                ${agendamento.hora} - em ${tempoTexto}
-                            </p>
-                        </div>
-                    </div>
-                    <button onclick="dismissAlert('${agendamento.id}')" class="btn-primary px-4 py-2 rounded-lg font-bold ml-4">
-                        <i class="fas fa-check mr-2"></i>Entendi
-                    </button>
-                </div>
-            `;
-            
-            document.getElementById('notification-area').appendChild(alertDiv);
-        }
-        
-        function dismissAlert(agendamentoId) {
-            const alert = document.getElementById(`alert-${agendamentoId}`);
-            if (alert) {
-                alert.style.animation = 'slideUp 0.3s ease-out';
-                setTimeout(() => alert.remove(), 300);
-            }
-        }
-
-        // Funções de Relatórios
-        function updateRelatorios() {
-            // Atualizar cards de estatísticas
-            document.getElementById('total-clientes').textContent = clientes.length;
-            
-            const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const anoAtual = hoje.getFullYear();
-            
-            const agendamentosMes = agendamentos.filter(a => {
-                const dataAgendamento = new Date(a.data);
-                return dataAgendamento.getMonth() === mesAtual && dataAgendamento.getFullYear() === anoAtual;
-            });
-            
-            document.getElementById('agendamentos-mes').textContent = agendamentosMes.length;
-            
-            const compareceram = agendamentos.filter(a => a.status === 'compareceu').length;
-            const faltaram = agendamentos.filter(a => a.status === 'faltou').length;
-            
-            document.getElementById('compareceram').textContent = compareceram;
-            document.getElementById('faltaram').textContent = faltaram;
-            
-            // Calcular receitas
-            let receitaTotal = 0;
-            let receitaRealizada = 0;
-            let receitaPerdida = 0;
-            
-            agendamentosMes.forEach(agendamento => {
-                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                if (procedimento) {
-                    receitaTotal += procedimento.valor;
-                    if (agendamento.status === 'compareceu') {
-                        receitaRealizada += procedimento.valor;
-                    } else if (agendamento.status === 'faltou') {
-                        receitaPerdida += procedimento.valor;
-                    }
-                }
-            });
-            
-            document.getElementById('receita-total').textContent = `R$ ${receitaTotal.toFixed(2)}`;
-            document.getElementById('receita-realizada').textContent = `R$ ${receitaRealizada.toFixed(2)}`;
-            document.getElementById('receita-perdida').textContent = `R$ ${receitaPerdida.toFixed(2)}`;
-        }
-
-        function gerarRelatorio() {
-            const agendamentosFiltrados = getFilteredAppointments();
-            
-            // Exibir relatório
-            const container = document.getElementById('relatorio-detalhado');
-            container.innerHTML = '';
-            
-            if (agendamentosFiltrados.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum agendamento encontrado com os filtros selecionados</p>';
-                return;
-            }
-            
-            // Adicionar resumo do relatório
-            const resumoDiv = document.createElement('div');
-            resumoDiv.className = 'glass-effect p-6 rounded-xl border border-yellow-500/30 mb-6';
-            
-            let totalAgendamentos = agendamentosFiltrados.length;
-            let totalCompareceram = agendamentosFiltrados.filter(a => a.status === 'compareceu').length;
-            let totalFaltaram = agendamentosFiltrados.filter(a => a.status === 'faltou').length;
-            let totalPendentes = agendamentosFiltrados.filter(a => a.status === 'agendado').length;
-            
-            let receitaTotal = 0;
-            let receitaRealizada = 0;
-            
-            agendamentosFiltrados.forEach(agendamento => {
-                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                if (procedimento) {
-                    receitaTotal += procedimento.valor;
-                    if (agendamento.status === 'compareceu') {
-                        receitaRealizada += procedimento.valor;
-                    }
-                }
-            });
-            
-            resumoDiv.innerHTML = `
-                <h3 class="text-xl font-bold gold-text mb-4">Resumo do Relatório</h3>
-                <div class="grid md:grid-cols-4 gap-4">
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-white">${totalAgendamentos}</p>
-                        <p class="text-yellow-300">Total</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-green-400">${totalCompareceram}</p>
-                        <p class="text-yellow-300">Compareceram</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-red-400">${totalFaltaram}</p>
-                        <p class="text-yellow-300">Faltaram</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-yellow-400">${totalPendentes}</p>
-                        <p class="text-yellow-300">Pendentes</p>
-                    </div>
-                </div>
-                <div class="grid md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-yellow-500/30">
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-green-400">R$ ${receitaRealizada.toFixed(2)}</p>
-                        <p class="text-yellow-300">Receita Realizada</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-blue-400">R$ ${receitaTotal.toFixed(2)}</p>
-                        <p class="text-yellow-300">Receita Total</p>
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(resumoDiv);
-            
-            // Adicionar título da lista
-            const tituloDiv = document.createElement('div');
-            tituloDiv.innerHTML = '<h3 class="text-xl font-bold gold-text mb-4">Detalhamento dos Agendamentos</h3>';
-            container.appendChild(tituloDiv);
-            
-            agendamentosFiltrados.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
-            
-            agendamentosFiltrados.forEach(agendamento => {
-                const cliente = clientes.find(c => c.id === agendamento.clienteId);
-                const procedimento = procedimentos.find(p => p.id === agendamento.procedimentoId);
-                
-                const statusColor = {
-                    'agendado': 'text-yellow-400',
-                    'compareceu': 'text-green-400',
-                    'faltou': 'text-red-400'
-                };
-                
-                const statusIcon = {
-                    'agendado': 'fas fa-clock',
-                    'compareceu': 'fas fa-check-circle',
-                    'faltou': 'fas fa-times-circle'
-                };
-                
-                const div = document.createElement('div');
-                div.className = 'glass-effect p-4 rounded-xl border border-yellow-500/30 mb-4';
-                div.innerHTML = `
-                    <div class="grid md:grid-cols-5 gap-4">
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Data/Hora</p>
-                            <p class="text-white">${new Date(agendamento.data).toLocaleDateString('pt-BR')} - ${agendamento.hora}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Cliente</p>
-                            <p class="text-white">${cliente?.nome || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Procedimento</p>
-                            <p class="text-white">${procedimento?.nome || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Status</p>
-                            <p class="${statusColor[agendamento.status] || 'text-gray-400'}">
-                                <i class="${statusIcon[agendamento.status] || 'fas fa-question'} mr-2"></i>
-                                ${agendamento.status === 'agendado' ? 'Agendado' : 
-                                  agendamento.status === 'compareceu' ? 'Compareceu' : 
-                                  agendamento.status === 'faltou' ? 'Faltou' : 'Indefinido'}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-yellow-300 font-semibold">Valor</p>
-                            <p class="text-green-400 font-bold">R$ ${procedimento?.valor.toFixed(2) || '0.00'}</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            
-            showNotification('Relatório gerado com sucesso!', 'success');
-        }
-
-        // Funções de controle de status dos agendamentos
-        async function marcarComparecimento(agendamentoId) {
-            try {
-                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
-                    status: 'compareceu',
-                    updatedAt: new Date().toISOString()
-                });
-                showNotification('Cliente marcado como compareceu! ✅', 'success');
-            } catch (error) {
-                console.error('Erro ao marcar comparecimento:', error);
-                showNotification('Erro ao marcar comparecimento!', 'error');
-            }
-        }
-
-        async function marcarFalta(agendamentoId) {
-            try {
-                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
-                    status: 'faltou',
-                    updatedAt: new Date().toISOString()
-                });
-                showNotification('Cliente marcado como faltou! ❌', 'warning');
-            } catch (error) {
-                console.error('Erro ao marcar falta:', error);
-                showNotification('Erro ao marcar falta!', 'error');
-            }
-        }
-
-        async function voltarAgendado(agendamentoId) {
-            try {
-                await window.firebaseDB.collection('agendamentos').doc(agendamentoId).update({
-                    status: 'agendado',
-                    updatedAt: new Date().toISOString()
-                });
-                showNotification('Status voltou para agendado! 🔄', 'info');
-            } catch (error) {
-                console.error('Erro ao voltar status:', error);
-                showNotification('Erro ao alterar status!', 'error');
-            }
-        }
-
-        // Sistema de Aniversários
-        function checkBirthdays() {
-            if (birthdayBannerClosed) return;
-            
-            const hoje = new Date();
-            const amanha = new Date();
-            amanha.setDate(hoje.getDate() + 1);
-            
-            // Aniversariantes de hoje
-            const aniversariantesHoje = clientes.filter(cliente => {
-                if (!cliente.nascimento) return false;
-                
-                // Usar apenas a string da data para evitar problemas de timezone
-                const nascimentoStr = cliente.nascimento; // formato: "YYYY-MM-DD"
-                const [ano, mes, dia] = nascimentoStr.split('-').map(Number);
-                
-                return dia === hoje.getDate() && 
-                       (mes - 1) === hoje.getMonth(); // mes-1 porque getMonth() retorna 0-11
-            });
-            
-            // Aniversariantes de amanhã
-            const aniversariantesAmanha = clientes.filter(cliente => {
-                if (!cliente.nascimento) return false;
-                
-                // Usar apenas a string da data para evitar problemas de timezone
-                const nascimentoStr = cliente.nascimento; // formato: "YYYY-MM-DD"
-                const [ano, mes, dia] = nascimentoStr.split('-').map(Number);
-                
-                return dia === amanha.getDate() && 
-                       (mes - 1) === amanha.getMonth(); // mes-1 porque getMonth() retorna 0-11
-            });
-            
-            if (aniversariantesHoje.length > 0 || aniversariantesAmanha.length > 0) {
-                showBirthdayBanner(aniversariantesHoje, aniversariantesAmanha);
-            } else {
-                hideBirthdayBanner();
-            }
-        }
-        
-        function showBirthdayBanner(aniversariantesHoje, aniversariantesAmanha) {
-            const banner = document.getElementById('birthday-banner');
-            const list = document.getElementById('birthday-list');
-            
-            list.innerHTML = '';
-            
-            // Mostrar aniversariantes de hoje
-            if (aniversariantesHoje.length > 0) {
-                const divHoje = document.createElement('div');
-                divHoje.className = 'mb-1';
-                divHoje.innerHTML = '<div class="font-semibold text-yellow-200 mb-1 text-xs sm:text-sm">Hoje:</div>';
-                list.appendChild(divHoje);
-                
-                aniversariantesHoje.forEach(cliente => {
-                    const hoje = new Date();
-                    const [anoNasc] = cliente.nascimento.split('-').map(Number);
-                    const idade = hoje.getFullYear() - anoNasc;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'ml-2 sm:ml-3 mb-1';
-                    div.innerHTML = `<span class="text-xs sm:text-sm"><strong>${cliente.nome}</strong> - ${idade} anos</span>`;
-                    list.appendChild(div);
-                });
-            }
-            
-            // Mostrar aniversariantes de amanhã
-            if (aniversariantesAmanha.length > 0) {
-                if (aniversariantesHoje.length > 0) {
-                    const separador = document.createElement('div');
-                    separador.className = 'my-1 sm:my-2 border-t border-white/20 pt-1';
-                    list.appendChild(separador);
-                }
-                
-                const divAmanha = document.createElement('div');
-                divAmanha.className = 'mb-1';
-                divAmanha.innerHTML = '<div class="font-semibold text-yellow-200/80 mb-1 text-xs sm:text-sm">Amanhã:</div>';
-                list.appendChild(divAmanha);
-                
-                aniversariantesAmanha.forEach(cliente => {
-                    const amanha = new Date();
-                    amanha.setDate(amanha.getDate() + 1);
-                    const [anoNasc] = cliente.nascimento.split('-').map(Number);
-                    const idade = amanha.getFullYear() - anoNasc;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'ml-2 sm:ml-3 mb-1 opacity-80';
-                    div.innerHTML = `<span class="text-xs sm:text-sm"><strong>${cliente.nome}</strong> - ${idade} anos</span>`;
-                    list.appendChild(div);
-                });
-            }
-            
-            banner.classList.remove('hidden');
-        }
-        
-        function hideBirthdayBanner() {
-            const banner = document.getElementById('birthday-banner');
-            banner.classList.add('hidden');
-        }
-        
-        function closeBirthdayBanner() {
-            birthdayBannerClosed = true;
-            hideBirthdayBanner();
-            
-            // Resetar no próximo dia
-            const amanha = new Date();
-            amanha.setDate(amanha.getDate() + 1);
-            amanha.setHours(0, 0, 0, 0);
-            
-            const tempoAteAmanha = amanha.getTime() - new Date().getTime();
-            setTimeout(() => {
-                birthdayBannerClosed = false;
-                checkBirthdays();
-            }, tempoAteAmanha);
-        }
-
-        // Disponibilizar funções globalmente
-        window.showTab = showTab;
-        window.openModalAgendamento = openModalAgendamento;
-        window.closeModalAgendamento = closeModalAgendamento;
-        window.editCliente = editCliente;
-        window.deleteCliente = deleteCliente;
-        window.deleteProcedimento = deleteProcedimento;
-        window.deleteAgendamento = deleteAgendamento;
-        window.dismissAlert = dismissAlert;
-        window.previousMonth = previousMonth;
-        window.nextMonth = nextMonth;
-        window.gerarRelatorio = gerarRelatorio;
-        window.marcarComparecimento = marcarComparecimento;
-        window.marcarFalta = marcarFalta;
-        window.voltarAgendado = voltarAgendado;
-        window.closeBirthdayBanner = closeBirthdayBanner;
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a7ecded2ec4ae8',t:'MTc1OTc4MjcxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<body>
+
+<header>
+<div class="wrap">
+<a class="logo" href="#topo">Gabriel Assis</a>
+<nav>
+<a href="#marcas">Marcas</a><a href="#entregas">Entregas</a><a href="#processo">Processo</a><a href="#brindes">Brindes</a><a href="#investimento">Investimento</a><a href="#contato">Contato</a>
+</nav>
+<button class="btn ghost" onclick="window.print()">Resumo em PDF</button>
+</div>
+</header>
+
+<main id="topo">
+<section class="hero">
+<img src="https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Mesa posta em ambiente gastronômico elegante">
+<div class="wrap">
+<div class="sub">Proposta comercial</div>
+<h1>Marketing que conecta marcas e pessoas.</h1>
+<p>Estratégia, conteúdo e presença digital para negócios gastronômicos.</p>
+<div class="acts"><a class="btn" href="#investimento">Ver a proposta</a><a class="btn ghost" href="#contato">Agendar conversa</a></div>
+</div>
+</section>
+
+<section id="visao-geral">
+<div class="wrap cols">
+<div>
+<div class="sub">A oportunidade</div>
+<h2>Presença que expressa o valor de cada negócio.</h2>
+</div>
+<div>
+<p>Uma presença digital consistente pode ajudar a apresentar melhor os negócios, despertar interesse, fortalecer o posicionamento e criar oportunidades de relacionamento com o público.</p>
+<p>O trabalho vai além de publicar fotos e vídeos: começa na intenção por trás de cada conteúdo e na forma como cada marca é percebida.</p>
+</div>
+</div>
+</section>
+
+<section id="marcas">
+<div class="wrap">
+<div class="sub">Três marcas, três personalidades</div>
+<h2>Uma proposta. Três maneiras de criar conexão.</h2>
+<p>Cada perfil pede uma narrativa própria, dentro de uma estratégia coordenada.</p>
+
+<div class="tabs" role="tablist">
+<button class="tab" role="tab" aria-selected="true" data-i="0">Savora</button>
+<button class="tab" role="tab" aria-selected="false" data-i="1">Zephýr</button>
+<button class="tab" role="tab" aria-selected="false" data-i="2">Quintal</button>
+</div>
+
+<div class="panel" data-i="0">
+<img src="https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Prato gastronômico fotografado em composição editorial" loading="lazy">
+<div>
+<div class="sub">Restaurante</div><h3>Savora</h3>
+<p>Restaurante de gastronomia mediterrânea. Direção: sofisticação, experiência, apresentação dos pratos, ingredientes, ambiente, sensorialidade e qualidade percebida.</p>
+<ul><li>Apresentação visual dos pratos</li><li>Detalhes de ingredientes e preparo</li><li>Experiência gastronômica, ambiente e ocasiões de consumo</li><li>Bastidores da cozinha, quando autorizados</li><li>Conteúdos que despertem vontade de conhecer o restaurante</li></ul>
+<p class="dir">Direção visual: refinamento, sabor, experiência e personalidade.</p>
+</div>
+</div>
+
+<div class="panel" data-i="1" hidden>
+<img src="https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Café preparado e servido em xícara" loading="lazy">
+<div>
+<div class="sub">Café</div><h3>Zephýr</h3>
+<p>Café. Direção: cafés especiais, brunch, produtos, experiência, ambiente acolhedor, rotina dos clientes e momentos de consumo.</p>
+<ul><li>Preparação de cafés, bebidas e produtos</li><li>Brunch e ocasiões de consumo</li><li>Ambiente, experiências e rotina do café</li><li>Bastidores e detalhes sensoriais</li><li>Conteúdos que estimulem visitas e compartilhamentos</li></ul>
+<p class="dir">Direção visual: aconchego, qualidade, personalidade e desejo de consumo.</p>
+<a class="ig" href="https://www.instagram.com/zephyrcafebrasil/" target="_blank" rel="noopener">Instagram de referência informado pelo cliente ↗</a>
+</div>
+</div>
+
+<div class="panel" data-i="2" hidden>
+<img src="https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Refeição servida à mesa com apresentação acolhedora" loading="lazy">
+<div>
+<div class="sub">Restaurante</div><h3>Quintal</h3>
+<p>Restaurante de comida caseira. Direção: comida de verdade, sabor familiar, acolhimento, refeições do cotidiano, tradição, praticidade e proximidade.</p>
+<ul><li>Pratos do dia e apresentação das refeições</li><li>Preparo e bastidores</li><li>Sensação de comida caseira</li><li>Praticidade e opções de consumo</li><li>Conteúdos que reforcem confiança e proximidade</li></ul>
+<p class="dir">Direção visual: acolhimento, sabor, simplicidade bem apresentada e familiaridade.</p>
+</div>
+</div>
+
+<p class="nota">Cada marca terá posicionamento, linguagem, temas de conteúdo e planejamento próprios, com respeito à identidade visual existente. A estratégia será coordenada entre os três perfis, sem fazer com que pareçam cópias uns dos outros. O novo café previsto para o futuro pode ser considerado em uma expansão estratégica e não integra o investimento mensal atual.</p>
+</div>
+</section>
+
+<section id="entregas">
+<div class="wrap">
+<div class="sub">O que será produzido</div>
+<h2>Uma presença construída com constância.</h2>
+<p>Os mínimos abaixo se aplicam a cada perfil: Savora, Zephýr e Quintal.</p>
+<div class="nums">
+<div class="num"><b data-n="8">0</b><span>vídeos em formato Reels por mês, por perfil</span></div>
+<div class="num"><b data-n="6">0</b><span>publicações estáticas ou em carrossel por mês, por perfil</span></div>
+<div class="num"><b data-n="1">0</b><span>visita presencial por semana para produção de conteúdo, por perfil</span></div>
+</div>
+<p>São entregas mínimas mensais planejadas, não um limite absoluto de produção. As visitas podem captar pratos, produtos, ambiente, processos, bastidores e experiências que façam sentido para a estratégia de cada marca.</p>
+<h3 style="margin-top:48px">Cada publicação tem um propósito.</h3>
+<div class="chips"><span>Experiência</span><span>Bastidores</span><span>Produtos</span><span>Relacionamento</span><span>Autoridade</span><span>Divulgação comercial</span></div>
+<p>Haverá conteúdos comerciais, institucionais, educativos, relacionais e de descoberta. O trabalho inclui definição de pilares de conteúdo, planejamento editorial, organização de pautas, objetivos por publicação, adequação da linguagem a cada marca e acompanhamento da evolução.</p>
+</div>
+</section>
+
+<section id="processo">
+<div class="wrap cols">
+<div>
+<div class="sub">Como será o processo de trabalho</div>
+<h2>Um fluxo claro, do planejamento aos ajustes.</h2>
+<h3 style="margin-top:40px">Uma primeira impressão mais clara.</h3>
+<p>A reorganização inicial de cada perfil pode contemplar organização visual do feed, padronização de capas de Reels, destaques, informações da bio e clareza na comunicação do negócio.</p>
+<p>Não haverá redesign, redesenho ou criação de novos logotipos. As identidades visuais existentes serão respeitadas e valorizadas.</p>
+</div>
+<ol class="steps">
+<li>Alinhamento e planejamento</li><li>Definição das pautas</li><li>Captação presencial</li><li>Edição e preparação do conteúdo</li><li>Organização das publicações</li><li>Acompanhamento e análise</li><li>Ajustes estratégicos conforme a evolução do trabalho</li>
+</ol>
+</div>
+</section>
+
+<section id="brindes">
+<div class="wrap">
+<div class="sub">Benefícios adicionais incluídos</div>
+<h2>Dois brindes para fortalecer a presença digital.</h2>
+<p>Incluídos na contratação, com escopo definido antes da execução. Não são itens mensais adicionais. A presença digital também é complementada por informações comerciais organizadas no Google e por um site profissional, sem garantia de posicionamento em buscas, aprovação pela plataforma ou resultados específicos de visitas.</p>
+<div class="cards">
+<div class="card">
+<div class="sub">Brinde 1</div>
+<h3>Perfil da Empresa no Google</h3>
+<p>Configuração inicial conforme elegibilidade e regras da plataforma: informações comerciais, categorias e descrição, horários, endereço ou área de atendimento, telefone e canais de contato, fotografias e orientações para manter os dados atualizados.</p>
+<p>Não se trata de gestão mensal contínua.</p>
+</div>
+<div class="card">
+<div class="sub">Brinde 2</div>
+<h3>Site para uma das marcas</h3>
+<p>Versão inicial para uma das marcas contratadas, com escopo e formato definidos em conjunto. Escolha uma das opções:</p>
+<div class="seg" role="group" aria-label="Opção de site">
+<button aria-pressed="true" data-o="a">Apresentação</button><button aria-pressed="false" data-o="b">Eventos e orçamento</button>
+</div>
+<p id="opt"></p>
+</div>
+</div>
+<p class="nota">O brinde não pressupõe sistema completo de reservas, pagamentos, disponibilidade em tempo real, integrações externas, automação avançada, domínio, hospedagem, e-mail profissional, ferramentas pagas, manutenção recorrente ou alterações futuras ilimitadas. Esses itens serão alinhados antes da execução.</p>
+</div>
+</section>
+
+<section id="investimento">
+<div class="wrap">
+<div class="sub">Investimento</div>
+<h2>Uma proposta para os três perfis.</h2>
+<p>Escolha quantos perfis deseja ver no valor mensal.</p>
+<div class="preco">
+<div class="seg" role="group" aria-label="Quantidade de perfis" id="perfis">
+<button aria-pressed="false" data-p="1">1 perfil</button><button aria-pressed="false" data-p="2">2 perfis</button><button aria-pressed="true" data-p="3">3 perfis</button>
+</div>
+<div class="valor" id="valor">R$ 5.100,00</div>
+<small id="legenda">por mês, Savora + Zephýr + Quintal</small>
+<small>R$ 1.700,00 por perfil/mês. O novo café futuro não está incluído no investimento mensal atual.</small>
+<small>A contratação inclui os dois brindes acima, sem cobrança como itens mensais adicionais.</small>
+</div>
+<p style="margin-top:36px">O trabalho será conduzido com planejamento, consistência, análise e ajustes, com decisões revistas conforme os dados disponíveis e as necessidades de cada negócio. Não há promessa de vendas, seguidores, alcance, faturamento ou resultados garantidos.</p>
+</div>
+</section>
+
+<section id="contato" class="fim">
+<div class="wrap cols">
+<div>
+<div class="sub">Próximo passo</div>
+<h2>Vamos construir uma presença digital à altura das suas marcas.</h2>
+<p>Estratégia, conteúdo e acompanhamento para fortalecer a comunicação, valorizar a experiência e criar novas oportunidades para os negócios.</p>
+<div class="acts">
+<a class="btn" href="https://wa.me/5524999872651?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">Agendar conversa no WhatsApp</a>
+<button class="btn ghost" onclick="window.print()">Baixar resumo em PDF</button>
+</div>
+</div>
+<div class="card">
+<h3>Questionário de briefing</h3>
+<p>O briefing reúne informações sobre a empresa, as marcas, os objetivos, o público, os produtos, a operação, as referências e as necessidades de comunicação. Essas respostas orientam o planejamento com mais clareza.</p>
+<p style="margin-top:22px"><a class="btn" href="https://briefing-gabriel-beige.vercel.app/briefing" target="_blank" rel="noopener">Preencher briefing</a></p>
+</div>
+</div>
+</section>
+</main>
+
+<footer><div class="wrap"><span>Gabriel Assis — Marketing Digital</span><a href="#topo">Voltar ao início ↑</a></div></footer>
+
+<a class="zap" href="https://wa.me/5524999872651?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">WhatsApp</a>
+
+<!-- Resumo (aparece só ao imprimir / salvar como PDF) -->
+<div id="resumo">
+<p>Proposta comercial</p>
+<h1>Gabriel Assis — Marketing Digital</h1>
+<p><strong>Marketing que conecta marcas e pessoas.</strong> Estratégia, conteúdo e presença digital para negócios gastronômicos.</p>
+<h2>Marcas</h2>
+<ul><li><strong>Savora</strong> — restaurante de gastronomia mediterrânea: sofisticação, experiência e qualidade percebida.</li><li><strong>Zephýr</strong> — café: cafés especiais, brunch, ambiente acolhedor e momentos de consumo.</li><li><strong>Quintal</strong> — restaurante de comida caseira: sabor familiar, acolhimento e proximidade.</li></ul>
+<h2>Entregas mínimas mensais, por perfil</h2>
+<ul><li>8 vídeos em formato Reels</li><li>6 publicações estáticas ou em carrossel</li><li>1 visita presencial por semana para produção de conteúdo</li><li>Planejamento editorial, pilares de conteúdo, pautas e acompanhamento da evolução</li><li>Organização visual inicial dos perfis, sem redesign ou novos logotipos</li></ul>
+<h2>Brindes incluídos</h2>
+<ul><li>Configuração inicial do Perfil da Empresa no Google (sem gestão mensal contínua)</li><li>Site de apresentação ou de eventos e orçamento para uma das marcas, com escopo definido antes da execução</li></ul>
+<h2>Investimento</h2>
+<p class="pv">R$ 5.100,00 por mês pelos três perfis</p>
+<p>R$ 1.700,00 por perfil/mês. O novo café futuro não está incluído.</p>
+<small>Não há promessa de vendas, seguidores, alcance, faturamento ou resultados garantidos.</small>
+<h2>Contato</h2>
+<p>WhatsApp: (24) 99987-2651 — Gabriel Assis</p>
+</div>
+
+<script>
+// abas das marcas
+const tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+tabs.forEach(t=>t.onclick=()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===t));
+  panels.forEach(p=>p.hidden=p.dataset.i!==t.dataset.i);
+});
+// números das entregas
+const cont=n=>{const to=+n.dataset.n;let v=0;const id=setInterval(()=>{n.textContent=String(++v).padStart(2,'0');if(v>=to)clearInterval(id)},to>4?110:200)};
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){cont(e.target);io.unobserve(e.target)}}),{threshold:.6});
+document.querySelectorAll('[data-n]').forEach(n=>io.observe(n));
+// opção do site
+const opts={
+ a:'Apresentação da marca, fotografias de produtos e ambiente, descrição da experiência, informações comerciais, endereço e mapa quando aplicável, horários, botão de WhatsApp quando os dados forem fornecidos, links para redes sociais, chamada para visita ou contato e informações de cardápio quando fornecidas pelo cliente.',
+ b:'Apresentação de espaços e possibilidades, galeria de fotografias, tipos de eventos definidos pelo cliente, formulário com nome, contato, tipo de evento, data pretendida, número estimado de pessoas e observações, botão de WhatsApp e informações de contato.'};
+const optEl=document.getElementById('opt'),segB=document.querySelectorAll('[data-o]');
+const setOpt=k=>{optEl.textContent=opts[k];segB.forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===k))};
+segB.forEach(b=>b.onclick=()=>setOpt(b.dataset.o));setOpt('a');
+// preço por quantidade de perfis
+const brl=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+const nomes={1:'por mês, 1 perfil',2:'por mês, 2 perfis',3:'por mês, Savora + Zephýr + Quintal'};
+const pb=document.querySelectorAll('[data-p]');
+pb.forEach(b=>b.onclick=()=>{const n=+b.dataset.p;
+  pb.forEach(x=>x.setAttribute('aria-pressed',x===b));
+  document.getElementById('valor').textContent=brl.format(1700*n);
+  document.getElementById('legenda').textContent=nomes[n]});
+</script>
+</body>
 </html>
