@@ -13,10 +13,10 @@
 --serif:"Cormorant Garamond",Georgia,serif;--sans:"Hanken Grotesk",system-ui,sans-serif}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
-body{background:var(--preto);color:var(--creme);font:400 17px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+body{--acc:#C9B89B;background:#0B0B0B;background:color-mix(in srgb,var(--acc) 9%,#0B0B0B);transition:--acc .9s ease;color:var(--creme);font:400 17px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--bronze);outline-offset:3px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
 .wrap{width:min(1080px,100% - 40px);margin-inline:auto}
 section{padding:96px 0;border-top:1px solid var(--grafite)}
 h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.1}
@@ -25,11 +25,11 @@ h2{font-size:clamp(32px,5vw,52px);margin-bottom:24px;max-width:18ch}
 h3{font-size:28px;margin-bottom:10px}
 p{max-width:62ch;color:var(--cinza-quente)}
 p+p{margin-top:14px}
-.sub{color:var(--bronze);font-size:15px;margin-bottom:14px}
-.btn{display:inline-block;padding:14px 26px;border:1px solid var(--bronze);background:var(--bronze);color:var(--preto);font:600 16px var(--sans);text-decoration:none;cursor:pointer;transition:background .2s,color .2s}
-.btn:hover{background:transparent;color:var(--bronze)}
-.btn.ghost{background:transparent;color:var(--bronze)}
-.btn.ghost:hover{background:var(--bronze);color:var(--preto)}
+.sub{color:var(--acc);font-size:15px;margin-bottom:14px}
+.btn{display:inline-block;padding:14px 26px;border:1px solid var(--acc);background:var(--acc);color:var(--preto);font:600 16px var(--sans);text-decoration:none;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:transparent;color:var(--acc)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.ghost:hover{background:var(--acc);color:var(--preto)}
 /* topo */
 header{position:sticky;top:0;z-index:20;background:rgba(11,11,11,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--grafite);padding-top:env(safe-area-inset-top,0)}
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
@@ -51,47 +51,47 @@ header .btn{padding:9px 16px;font-size:14px}
 /* abas das marcas */
 .tabs{display:flex;gap:8px;margin:32px 0 28px;flex-wrap:wrap}
 .tab{background:none;border:1px solid var(--grafite);color:var(--cinza-quente);padding:12px 22px;font:500 16px var(--sans);cursor:pointer;transition:.2s}
-.tab[aria-selected=true]{border-color:var(--bronze);color:var(--preto);background:var(--bronze)}
+.tab[aria-selected=true]{border-color:var(--acc);color:var(--preto);background:var(--acc)}
 .panel{display:grid;grid-template-columns:5fr 6fr;gap:44px;align-items:start;animation:troca .45s ease}
 .panel[hidden]{display:none}
 @keyframes troca{from{opacity:0;transform:translateY(10px)}}
 .panel img{width:100%;aspect-ratio:4/5;object-fit:cover}
 .panel ul{margin:16px 0;padding-left:20px;color:var(--cinza-quente)}
 .panel li{margin-bottom:6px}
-.dir{border-left:2px solid var(--bronze);padding-left:16px;color:var(--creme);margin-top:18px}
-.panel a.ig{color:var(--bronze);font-size:15px;display:inline-block;margin-top:14px}
+.dir{border-left:2px solid var(--acc);padding-left:16px;color:var(--creme);margin-top:18px}
+.panel a.ig{color:var(--acc);font-size:15px;display:inline-block;margin-top:14px}
 @media(max-width:800px){.panel{grid-template-columns:1fr}}
 .nota{margin-top:36px;padding:20px 24px;background:var(--grafite);max-width:none}
 /* entregas */
 .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grafite);margin:36px 0}
 .num{background:var(--preto);padding:34px 26px}
-.num b{display:block;font:500 clamp(64px,10vw,104px)/1 var(--serif);color:var(--bronze)}
+.num b{display:block;font:500 clamp(64px,10vw,104px)/1 var(--serif);color:var(--acc)}
 .num span{color:var(--creme)}
 @media(max-width:700px){.nums{grid-template-columns:1fr}}
 .chips{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}
-.chips span{border:1px solid var(--bronze);color:var(--bronze);padding:7px 16px;font-size:15px}
+.chips span{border:1px solid var(--acc);color:var(--acc);padding:7px 16px;font-size:15px}
 /* processo */
 .steps{list-style:none;padding:0;margin-top:32px;counter-reset:s;max-width:640px}
 .steps li{counter-increment:s;display:flex;gap:22px;padding:18px 0;border-bottom:1px solid var(--grafite);color:var(--creme)}
-.steps li::before{content:counter(s);font:500 30px/1 var(--serif);color:var(--bronze);width:34px;flex:none}
+.steps li::before{content:counter(s);font:500 30px/1 var(--serif);color:var(--acc);width:34px;flex:none}
 /* brindes */
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
 .card{background:var(--grafite);padding:34px}
 .card p{font-size:16px}
 @media(max-width:800px){.cards{grid-template-columns:1fr}}
-.seg{display:inline-flex;border:1px solid var(--bronze);margin:6px 0 18px}
-.seg button{background:none;border:0;color:var(--bronze);padding:9px 18px;font:500 15px var(--sans);cursor:pointer}
-.seg button[aria-pressed=true]{background:var(--bronze);color:var(--preto)}
+.seg{display:inline-flex;border:1px solid var(--acc);margin:6px 0 18px}
+.seg button{background:none;border:0;color:var(--acc);padding:9px 18px;font:500 15px var(--sans);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--preto)}
 /* investimento */
 .preco{background:var(--grafite);padding:44px;margin-top:32px;max-width:720px}
-.valor{font:500 clamp(52px,9vw,84px)/1 var(--serif);color:var(--bronze);margin:8px 0}
+.valor{font:500 clamp(52px,9vw,84px)/1 var(--serif);color:var(--acc);margin:8px 0}
 .preco small{color:var(--cinza-quente);display:block}
 /* contato */
 .fim{text-align:left}
 .fim .acts{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
 footer{padding:32px 0 calc(32px + env(safe-area-inset-bottom,0));border-top:1px solid var(--grafite);color:var(--cinza-quente);font-size:14px}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.zap{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0));z-index:30;background:var(--bronze);color:var(--preto);padding:13px 20px;font:600 15px var(--sans);text-decoration:none;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.zap{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0));z-index:30;background:var(--acc);color:var(--preto);padding:13px 20px;font:600 15px var(--sans);text-decoration:none;box-shadow:0 6px 24px rgba(0,0,0,.5)}
 /* resumo para PDF */
 #resumo{display:none}
 @media print{
@@ -107,9 +107,39 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 #resumo small{color:#555;display:block;margin-top:14px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+@property --acc{syntax:'<color>';inherits:true;initial-value:#C9B89B}
+.btn,.tab,.seg,.seg button,.chips span{border-radius:999px}
+.seg{overflow:hidden}
+.card,.preco,.nota{border-radius:28px}
+.nums{border-radius:28px;overflow:hidden}
+.panel img{border-radius:32px}
+#bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:40;background:var(--acc);transform-origin:left;transform:scaleX(0)}
+.hero{min-height:calc(100svh - 64px)}
+.slides{position:absolute;inset:-8% 0;will-change:transform}
+.hero img{animation:none;opacity:0;transform:scale(1.08);transition:opacity 1.4s ease,transform 7s linear}
+.hero img.on{opacity:1;transform:scale(1)}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 30px}
+.pills span{border:1px solid rgba(237,231,217,.35);border-radius:999px;padding:6px 16px;font-size:14px;color:var(--creme);transition:.5s}
+.pills span.on{background:var(--acc);border-color:var(--acc);color:var(--preto)}
+.hero .sub,.hero h1,.hero p,.hero .pills,.hero .acts{animation:subir 1s cubic-bezier(.2,.7,.2,1) both}
+.hero h1{animation-delay:.15s}.hero p{animation-delay:.35s}.hero .pills{animation-delay:.5s}.hero .acts{animation-delay:.65s}
+@keyframes subir{from{opacity:0;transform:translateY(36px)}}
+.btn.go{display:inline-flex;align-items:center;gap:10px;padding:16px 30px;font-size:17px;animation:pulso 2.6s infinite}
+@keyframes pulso{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}100%{box-shadow:0 0 0 20px transparent}}
+.scroll{position:absolute;left:50%;bottom:22px;width:26px;height:42px;border:2px solid rgba(237,231,217,.5);border-radius:999px;transform:translateX(-50%)}
+.scroll i{position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:4px;background:var(--creme);animation:rola 1.8s infinite}
+@keyframes rola{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(16px)}}
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.zap{display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;border-radius:999px;background:#25D366;overflow:hidden;white-space:nowrap;box-shadow:0 8px 28px rgba(37,211,102,.35);transition:width .35s,padding .35s,gap .35s}
+.zap span{max-width:0;opacity:0;transition:max-width .35s,opacity .3s;font:600 15px var(--sans);color:#fff}
+.zap:hover,.zap:focus-visible,.zap.open{width:auto;padding:0 24px 0 18px;gap:10px}
+.zap:hover span,.zap:focus-visible span,.zap.open span{max-width:140px;opacity:1}
 </style>
 </head>
 <body>
+<div id="bar"></div>
 
 <header>
 <div class="wrap">
@@ -122,17 +152,24 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </header>
 
 <main id="topo">
-<section class="hero">
-<img src="https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Mesa posta em ambiente gastronômico elegante">
+<section class="hero" id="inicio">
+<div class="slides">
+<img class="on" src="https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Mesa posta em ambiente gastronômico elegante">
+<img src="https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Prato gastronômico em composição editorial">
+<img src="https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Café servido em xícara">
+<img src="https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Refeição servida à mesa">
+</div>
 <div class="wrap">
 <div class="sub">Proposta comercial</div>
 <h1>Marketing que conecta marcas e pessoas.</h1>
 <p>Estratégia, conteúdo e presença digital para negócios gastronômicos.</p>
-<div class="acts"><a class="btn" href="#investimento">Ver a proposta</a><a class="btn ghost" href="#contato">Agendar conversa</a></div>
+<div class="pills" aria-hidden="true"><span>Savora</span><span>Zephýr</span><span>Quintal</span></div>
+<div class="acts"><a class="btn go" href="#visao-geral">Ver a proposta <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a><a class="btn ghost" href="https://wa.me/5524999876251?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">Falar no WhatsApp</a></div>
 </div>
+<div class="scroll" aria-hidden="true"><i></i></div>
 </section>
 
-<section id="visao-geral">
+<section id="visao-geral" data-s>
 <div class="wrap cols">
 <div>
 <div class="sub">A oportunidade</div>
@@ -145,7 +182,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="marcas">
+<section id="marcas" data-s>
 <div class="wrap">
 <div class="sub">Três marcas, três personalidades</div>
 <h2>Uma proposta. Três maneiras de criar conexão.</h2>
@@ -192,7 +229,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="entregas">
+<section id="entregas" data-s>
 <div class="wrap">
 <div class="sub">O que será produzido</div>
 <h2>Uma presença construída com constância.</h2>
@@ -209,7 +246,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="processo">
+<section id="processo" data-s>
 <div class="wrap cols">
 <div>
 <div class="sub">Como será o processo de trabalho</div>
@@ -224,7 +261,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="brindes">
+<section id="brindes" data-s>
 <div class="wrap">
 <div class="sub">Benefícios adicionais incluídos</div>
 <h2>Dois brindes para fortalecer a presença digital.</h2>
@@ -250,7 +287,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="investimento">
+<section id="investimento" data-s>
 <div class="wrap">
 <div class="sub">Investimento</div>
 <h2>Uma proposta para os três perfis.</h2>
@@ -268,14 +305,14 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 </div>
 </section>
 
-<section id="contato" class="fim">
+<section id="contato" class="fim" data-s>
 <div class="wrap cols">
 <div>
 <div class="sub">Próximo passo</div>
 <h2>Vamos construir uma presença digital à altura das suas marcas.</h2>
 <p>Estratégia, conteúdo e acompanhamento para fortalecer a comunicação, valorizar a experiência e criar novas oportunidades para os negócios.</p>
 <div class="acts">
-<a class="btn" href="https://wa.me/5524999872651?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">Agendar conversa no WhatsApp</a>
+<a class="btn" href="https://wa.me/5524999876251?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">Agendar conversa no WhatsApp</a>
 <button class="btn ghost" onclick="window.print()">Baixar resumo em PDF</button>
 </div>
 </div>
@@ -290,7 +327,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 
 <footer><div class="wrap"><span>Gabriel Assis — Marketing Digital</span><a href="#topo">Voltar ao início ↑</a></div></footer>
 
-<a class="zap" href="https://wa.me/5524999872651?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener">WhatsApp</a>
+<a class="zap" href="https://wa.me/5524999876251?text=Ol%C3%A1%2C%20Gabriel!%20Vi%20a%20proposta%20e%20gostaria%20de%20agendar%20uma%20conversa." target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" width="30" height="30" fill="#fff" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35M12.05 21.8a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.89 9.89-9.89 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 7c0 5.45-4.44 9.88-9.89 9.88M20.46 3.49A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.69 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.42"/></svg><span>Fale comigo</span></a>
 
 <!-- Resumo (aparece só ao imprimir / salvar como PDF) -->
 <div id="resumo">
@@ -308,7 +345,7 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 <p>R$ 1.700,00 por perfil/mês. O novo café futuro não está incluído.</p>
 <small>Não há promessa de vendas, seguidores, alcance, faturamento ou resultados garantidos.</small>
 <h2>Contato</h2>
-<p>WhatsApp: (24) 99987-2651 — Gabriel Assis</p>
+<p>WhatsApp: (24) 99987-6251 — Gabriel Assis</p>
 </div>
 
 <script>
@@ -337,6 +374,28 @@ pb.forEach(b=>b.onclick=()=>{const n=+b.dataset.p;
   pb.forEach(x=>x.setAttribute('aria-pressed',x===b));
   document.getElementById('valor').textContent=brl.format(1700*n);
   document.getElementById('legenda').textContent=nomes[n]});
+</script>
+<script>
+(function(){
+const S={'visao-geral':'#C9B89B',entregas:'#E3B873',processo:'#D99A8E',brindes:'#8FC4AE',investimento:'#E0C27A',contato:'#C9B89B'};
+const M=['#8FB4C9','#D9A27A','#B4C47F'],H=['#C9B89B'].concat(M);
+let sec='inicio',tab=0,sl=0;
+const set=()=>document.body.style.setProperty('--acc',sec==='marcas'?M[tab]:sec==='inicio'?H[sl]:(S[sec]||H[0]));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=+t.dataset.i;set()}));
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sec=e.target.id;set()}}),{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('main section[id]').forEach(x=>so.observe(x));
+const im=[...document.querySelectorAll('.hero img')],pl=[...document.querySelectorAll('.pills span')];
+setInterval(()=>{sl=(sl+1)%im.length;im.forEach((x,i)=>x.classList.toggle('on',i===sl));pl.forEach((p,i)=>p.classList.toggle('on',i===sl-1));set()},4200);
+const bar=document.getElementById('bar'),sd=document.querySelector('.slides');
+const onS=()=>{const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform='scaleX('+(h>0?scrollY/h:0)+')';sd.style.transform='translateY('+Math.min(scrollY*.12,50)+'px)'};
+addEventListener('scroll',onS,{passive:true});onS();
+const rv=document.querySelectorAll('main section[data-s] .wrap > *,main section[data-s] .cols > *,.cards > *,.num,.steps li');
+rv.forEach(el=>{el.classList.add('rv');const k=el.matches('.num,.steps li,.cards > *,.cols > *')?[...el.parentNode.children].indexOf(el)*.12:0;el.style.transitionDelay=k+'s'});
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}}),{threshold:.12});
+rv.forEach(el=>ro.observe(el));
+const z=document.querySelector('.zap');
+setTimeout(()=>{z.classList.add('open');setTimeout(()=>z.classList.remove('open'),3500)},3500);
+})();
 </script>
 </body>
 </html>
