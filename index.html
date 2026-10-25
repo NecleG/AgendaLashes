@@ -31,7 +31,7 @@ p+p{margin-top:14px}
 .btn.ghost{background:transparent;color:var(--acc)}
 .btn.ghost:hover{background:var(--acc);color:var(--on)}
 /* topo */
-header{position:sticky;top:0;z-index:20;background:rgba(11,11,11,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .logo{font:500 24px var(--serif);text-decoration:none}
 nav{display:flex;gap:22px;font-size:15px}
@@ -137,7 +137,6 @@ body{background:#fff;color:#1F1F1F;font-size:11.5pt;line-height:1.5}
 .zap:hover span,.zap:focus-visible span,.zap.open span{max-width:140px;opacity:1}
 
 :root{--bg:#2A2018;--fg:#EDE7D9;--mut:#B3A999;--card:#382D23;--line:#46392D;--acc:#C9B89B;--on:#0B0B0B}
-.n{--bg:#EDE7D9;--fg:#1F1F1F;--mut:#5C554B;--card:#E0D6C1;--line:#CDBFA5;--acc:#6F563A;--on:#EDE7D9}
 body{font-size:18px}
 .wrap{width:min(1200px,100% - 64px)}
 main section:not(.hero){position:relative;margin-top:-44px;padding:104px 0 148px;border:0;border-radius:44px 44px 0 0;background:var(--bg);color:var(--fg)}
@@ -162,10 +161,27 @@ footer{position:relative;margin-top:-44px;border:0;border-radius:44px 44px 0 0;b
 @media(max-width:800px){main section:not(.hero){padding:76px 0 112px}}
 @media(max-width:700px){.wrap{width:calc(100% - 40px)}}
 h1,h2{text-wrap:balance}
+
+main section:not(.hero){background:transparent;margin-top:0;border-radius:0;z-index:1;padding:104px 0 120px}
+.hero{--fg:#EDE7D9;--mut:#CFC6B6;--acc:#C9B89B;--on:#0B0B0B;z-index:1}
+.hero h1{animation:none}
+footer{background:transparent;margin-top:0;border-radius:0;padding:40px 0 calc(32px + env(safe-area-inset-bottom,0));z-index:1}
+.glow{position:fixed;width:62vmax;height:62vmax;border-radius:50%;background:radial-gradient(closest-side,var(--acc),transparent);opacity:.17;filter:blur(40px);pointer-events:none;z-index:0;will-change:transform}
+.g1{top:-24vmax;left:-24vmax}.g2{bottom:-28vmax;right:-24vmax}
+.faixa{position:relative;z-index:1;overflow:hidden;white-space:nowrap;padding:6px 0}
+.faixa div{display:inline-flex;align-items:center;gap:48px;font:500 clamp(54px,9vw,128px)/1.1 var(--serif);-webkit-text-stroke:1.5px var(--acc);color:transparent;will-change:transform}
+.faixa b{font-size:.5em;-webkit-text-stroke:0;color:var(--acc)}
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding:.08em .03em .18em;margin:-.08em -.03em -.18em}
+.w i{display:inline-block;font-style:normal;transform:translateY(118%) rotate(5deg);transition:transform 1.05s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--k)*70ms)}
+.in .w i{transform:none}
+.steps li{color:var(--mut);transition:color .6s}
+.steps li.on{color:var(--fg)}
+@media(max-width:800px){main section:not(.hero){padding:76px 0 84px}}
 </style>
 </head>
 <body>
 <div id="bar"></div>
+<div class="glow g1"></div><div class="glow g2"></div>
 
 <header>
 <div class="wrap">
@@ -208,6 +224,8 @@ h1,h2{text-wrap:balance}
 </div>
 </section>
 
+<div class="faixa" aria-hidden="true"><div data-d="-1"><span>Savora</span><b>✦</b><span>Zephýr</span><b>✦</b><span>Quintal</span><b>✦</b><span>Savora</span><b>✦</b><span>Zephýr</span><b>✦</b><span>Quintal</span><b>✦</b><span>Savora</span><b>✦</b><span>Zephýr</span><b>✦</b><span>Quintal</span><b>✦</b><span>Savora</span><b>✦</b><span>Zephýr</span><b>✦</b><span>Quintal</span><b>✦</b></div></div>
+<div class="faixa" aria-hidden="true"><div data-d="1"><span>Estratégia</span><b>✦</b><span>Conteúdo</span><b>✦</b><span>Presença digital</span><b>✦</b><span>Estratégia</span><b>✦</b><span>Conteúdo</span><b>✦</b><span>Presença digital</span><b>✦</b><span>Estratégia</span><b>✦</b><span>Conteúdo</span><b>✦</b><span>Presença digital</span><b>✦</b><span>Estratégia</span><b>✦</b><span>Conteúdo</span><b>✦</b><span>Presença digital</span><b>✦</b></div></div>
 <section id="marcas" class="c" data-s>
 <div class="wrap">
 <div class="sub">Três marcas, três personalidades</div>
@@ -403,16 +421,56 @@ pb.forEach(b=>b.onclick=()=>{const n=+b.dataset.p;
 </script>
 <script>
 (function(){
+const D={bg:[42,32,24],fg:[237,231,217],mut:[179,169,153],card:[56,45,35],line:[70,57,45],acc:[201,184,155],on:[11,11,11]};
+const N={bg:[237,231,217],fg:[31,31,31],mut:[92,85,75],card:[224,214,193],line:[205,191,165],acc:[111,86,58],on:[237,231,217]};
+const sharp=['fg','mut','acc','on'];
+const mix=(a,b,t)=>'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join()+')';
+const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+const secs=[...document.querySelectorAll('main section[id]')];
+const root=document.documentElement.style;
+const bar=document.getElementById('bar'),sd=document.querySelector('.slides'),hw=document.querySelector('.hero .wrap');
+const g1=document.querySelector('.g1'),g2=document.querySelector('.g2');
+const fx=[...document.querySelectorAll('.faixa div')],lis=[...document.querySelectorAll('.steps li')];
+function frame(){
+  const y=scrollY,H=innerHeight,mid=y+H*.5,Z=H*.32;
+  let t=0;
+  for(let k=1;k<secs.length;k++){
+    const yb=secs[k].getBoundingClientRect().top+y;
+    const a=secs[k-1].classList.contains('n')?1:0,b=secs[k].classList.contains('n')?1:0;
+    if(a!==b)t+=(b-a)*ss(yb-Z,yb+Z,mid);
+  }
+  const tf=ss(.42,.58,t);
+  for(const k in D)root.setProperty('--'+k,mix(D[k],N[k],sharp.includes(k)?tf:t));
+  const h=document.documentElement.scrollHeight-H;
+  bar.style.transform='scaleX('+(h>0?y/h:0)+')';
+  sd.style.transform='translateY('+Math.min(y*.12,50)+'px)';
+  const p=Math.min(y/(H*.8),1);
+  hw.style.transform='translateY('+(-p*70)+'px)';hw.style.opacity=1-p;
+  g1.style.transform='translate('+Math.sin(y/700)*12+'vmax,'+Math.cos(y/900)*8+'vmax)';
+  g2.style.transform='translate('+Math.cos(y/800)*10+'vmax,'+Math.sin(y/650)*9+'vmax)';
+  fx.forEach(el=>{const r=el.parentNode.getBoundingClientRect();const pr=(H-r.top)*.55;el.style.transform='translateX('+(el.dataset.d<0?-pr:-1500+pr)+'px)'});
+  lis.forEach(li=>li.classList.toggle('on',li.getBoundingClientRect().top<H*.62));
+}
+let tick=false;
+const req=()=>{if(!tick){tick=true;requestAnimationFrame(()=>{tick=false;frame()})}};
+addEventListener('scroll',req,{passive:true});addEventListener('resize',req);frame();
+
+// títulos: palavra por palavra
+document.querySelectorAll('h1,h2').forEach(h=>{h.innerHTML=h.textContent.trim().split(/\s+/).map((w,i)=>'<span class="w"><i style="--k:'+i+'">'+w+'</i></span>').join(' ')});
+setTimeout(()=>document.querySelector('.hero h1').classList.add('in'),250);
+
+// hero: troca de fotos
 let sl=0;
 const im=[...document.querySelectorAll('.hero img')],pl=[...document.querySelectorAll('.pills span')];
-setInterval(()=>{sl=(sl+1)%im.length;im.forEach((x,i)=>x.classList.toggle('on',i===sl));pl.forEach((p,i)=>p.classList.toggle('on',i===sl-1))},4200);
-const bar=document.getElementById('bar'),sd=document.querySelector('.slides');
-const onS=()=>{const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform='scaleX('+(h>0?scrollY/h:0)+')';sd.style.transform='translateY('+Math.min(scrollY*.12,50)+'px)'};
-addEventListener('scroll',onS,{passive:true});onS();
-const rv=document.querySelectorAll('main section[data-s] .wrap > *,main section[data-s] .cols > *,.cards > *,.num,.steps li');
+setInterval(()=>{sl=(sl+1)%im.length;im.forEach((x,i)=>x.classList.toggle('on',i===sl));pl.forEach((q,i)=>q.classList.toggle('on',i===sl-1))},4200);
+
+// entrada dos blocos
+const rv=[...document.querySelectorAll('main section[data-s] .wrap > *,main section[data-s] .cols > *,.cards > *,.num,.steps li')].filter(e=>!e.matches('h2'));
 rv.forEach(el=>{el.classList.add('rv');const k=el.matches('.num,.steps li,.cards > *,.cols > *')?[...el.parentNode.children].indexOf(el)*.12:0;el.style.transitionDelay=k+'s'});
-const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}}),{threshold:.12});
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}}),{threshold:.15});
 rv.forEach(el=>ro.observe(el));
+document.querySelectorAll('main section h2').forEach(el=>ro.observe(el));
+
 const z=document.querySelector('.zap');
 setTimeout(()=>{z.classList.add('open');setTimeout(()=>z.classList.remove('open'),3500)},3500);
 })();
